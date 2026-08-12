@@ -1,0 +1,54 @@
+import express from 'express';
+import path from 'path';
+import dotenv from 'dotenv';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import mongoSanitize from 'express-mongo-sanitize';
+import { xss } from 'express-xss-sanitizer';
+import mongoose from 'mongoose';
+
+import authRoutes from './routes/authRoutes';
+import bookingRoutes from './routes/bookingRoutes';
+
+dotenv.config({ override: true });
+
+const app = express();
+
+app.use(helmet({
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }
+}));
+app.use(cors());
+app.use(express.json());
+app.use(mongoSanitize());
+app.use(xss());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 800, // limit each IP to 800 requests per windowMs
+});
+app.use('/api', limiter);
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/bookings', bookingRoutes);
+
+// Serve static files from the 'dist' folder (which will contain frontend build)
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Catch-all route to serve index.html for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
+const PORT = process.env.PORT || 4000;
+
+mongoose.connect(process.env.MONGODB_URI as string)
+  .then(() => {
+    console.log('Connected to MongoDB');
+    app.listen(PORT, () => {
+      console.log(`Main Backend Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => console.error('MongoDB connection error:', err));
+
