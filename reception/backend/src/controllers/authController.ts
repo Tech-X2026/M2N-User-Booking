@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import Receptionist from '../models/Receptionist';
+import bcrypt from 'bcryptjs';
+import prisma from '../utils/prisma';
 
 const generateToken = (id: string, role: string) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET as string, {
@@ -29,18 +30,21 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Check for Receptionist login
-    const receptionist = await Receptionist.findOne({ email });
-    if (receptionist && (await receptionist.matchPassword(password))) {
-      res.json({
-        id: receptionist._id,
-        name: receptionist.name,
-        email: receptionist.email,
-        role: receptionist.role,
-        permissions: receptionist.permissions,
-        hotelId: receptionist.hotelId,
-        token: generateToken(receptionist._id.toString(), receptionist.role),
-      });
-      return;
+    const receptionist = await prisma.receptionist.findUnique({ where: { email } });
+    if (receptionist) {
+      const isMatch = await bcrypt.compare(password, receptionist.password);
+      if (isMatch) {
+        res.json({
+          id: receptionist.id,
+          name: receptionist.name,
+          email: receptionist.email,
+          role: receptionist.role,
+          permissions: receptionist.permissions,
+          hotelId: receptionist.hotelId,
+          token: generateToken(receptionist.id, receptionist.role),
+        });
+        return;
+      }
     }
 
     res.status(401).json({ message: 'Invalid email or password' });

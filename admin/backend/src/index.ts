@@ -4,10 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
-import mongoSanitize from 'express-mongo-sanitize';
 import { xss } from 'express-xss-sanitizer';
-import connectDB from './config/db';
-
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import hotelRoutes from './routes/hotelRoutes';
@@ -16,14 +13,7 @@ import globalCategoryRoutes from './routes/globalCategoryRoutes';
 import bookingRoutes from './routes/bookingRoutes';
 import receptionistRoutes from './routes/receptionistRoutes';
 
-import './models/User';
-import './models/Hotel';
-import './models/RoomCategory';
-import './models/Receptionist';
-
 dotenv.config({ override: true });
-
-connectDB();
 
 const app = express();
 
@@ -33,7 +23,6 @@ app.use(helmet({
 }));
 app.use(cors());
 app.use(express.json());
-app.use(mongoSanitize());
 app.use(xss());
 
 const limiter = rateLimit({

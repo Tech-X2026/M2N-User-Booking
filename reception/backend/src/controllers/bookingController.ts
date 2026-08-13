@@ -1,10 +1,8 @@
 import { Request, Response } from 'express';
-import Booking from '../models/Booking';
+import prisma from '../utils/prisma';
 import { sendEmail } from '../utils/sendEmail';
 import { AuthRequest } from '../middlewares/authMiddleware';
-import RoomCategory from '../models/RoomCategory';
 import { uploadToDrive } from '../utils/googleDrive';
-import Hotel from '../models/Hotel';
 
 export const getAllBookings = async (req: AuthRequest, res: Response) => {
   try {
@@ -13,13 +11,25 @@ export const getAllBookings = async (req: AuthRequest, res: Response) => {
       query.hotelId = req.user.hotelId;
     }
 
-    const bookings = await Booking.find(query)
-      .populate('userId', 'name email phone')
-      .populate('hotelId', 'name city state')
-      .populate('roomCategoryId', 'name')
-      .sort({ createdAt: -1 });
+    const bookings = await prisma.booking.findMany({
+      where: query,
+      include: {
+        user: { select: { name: true, email: true, phone: true } },
+        hotel: { select: { name: true, city: true, state: true } },
+        roomCategory: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
       
-    res.json(bookings);
+    const formattedBookings = bookings.map(b => ({
+      ...b,
+      _id: b.id,
+      userId: b.user,
+      hotelId: b.hotel,
+      roomCategoryId: b.roomCategory
+    }));
+
+    res.json(formattedBookings);
   } catch (error) {
     console.error('Get all bookings error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -28,10 +38,14 @@ export const getAllBookings = async (req: AuthRequest, res: Response) => {
 
 export const getBookingById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const booking = await Booking.findOne({ bookingId: req.params.id })
-      .populate('userId', 'name email phone')
-      .populate('hotelId', 'name city state')
-      .populate('roomCategoryId', 'name');
+    const booking = await prisma.booking.findUnique({
+      where: { bookingId: req.params.id },
+      include: {
+        user: { select: { name: true, email: true, phone: true } },
+        hotel: { select: { id: true, name: true, city: true, state: true } },
+        roomCategory: { select: { name: true } }
+      }
+    });
 
     if (!booking) {
       res.status(404).json({ message: 'Booking not found' });
@@ -39,13 +53,19 @@ export const getBookingById = async (req: AuthRequest, res: Response): Promise<v
     }
 
     if (req.user && req.user.role === 'receptionist' && req.user.hotelId) {
-      if (booking.hotelId._id.toString() !== req.user.hotelId.toString()) {
+      if (booking.hotelId !== req.user.hotelId) {
         res.status(403).json({ message: 'Not authorized to view this booking' });
         return;
       }
     }
 
-    res.json(booking);
+    res.json({
+      ...booking,
+      _id: booking.id,
+      userId: booking.user,
+      hotelId: { ...booking.hotel, _id: booking.hotel.id },
+      roomCategoryId: booking.roomCategory
+    });
   } catch (error) {
     console.error('Get booking error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -57,14 +77,14 @@ export const checkInBooking = async (req: AuthRequest, res: Response): Promise<v
     const { id } = req.params;
     const { roomId, categoryId } = req.body;
 
-    const booking = await Booking.findById(id);
+    const booking = await prisma.booking.findUnique({ where: { id } });
     if (!booking) {
       res.status(404).json({ message: 'Booking not found' });
       return;
     }
 
     if (req.user && req.user.role === 'receptionist' && req.user.hotelId) {
-      if (booking.hotelId.toString() !== req.user.hotelId.toString()) {
+      if (booking.hotelId !== req.user.hotelId) {
         res.status(403).json({ message: 'Not authorized' });
         return;
       }
@@ -77,20 +97,21 @@ export const checkInBooking = async (req: AuthRequest, res: Response): Promise<v
     }
 
     // Update Room Status
-    const category = await RoomCategory.findById(categoryId);
+    const category = await prisma.roomCategory.findUnique({ where: { id: categoryId } });
     if (!category) {
       res.status(404).json({ message: 'Category not found' });
       return;
     }
 
-    const room = category.rooms.find((r: any) => r._id.toString() === roomId);
-    if (!room) {
+    let roomsData = category.rooms as any[];
+    const roomIndex = roomsData.findIndex((r: any) => r._id === roomId || r.id === roomId);
+    if (roomIndex === -1) {
       res.status(404).json({ message: 'Room not found' });
       return;
     }
 
     // Get Hotel name for folder structure
-    const hotel = await Hotel.findById(booking.hotelId);
+    const hotel = await prisma.hotel.findUnique({ where: { id: booking.hotelId } });
     if (!hotel) {
       res.status(404).json({ message: 'Hotel not found' });
       return;
@@ -102,21 +123,26 @@ export const checkInBooking = async (req: AuthRequest, res: Response): Promise<v
       file.buffer,
       file.mimetype,
       extension,
-      booking._id.toString(),
+      booking.id,
       hotel.name
     );
 
-    room.status = 'CheckIn';
-    await category.save();
+    roomsData[roomIndex].status = 'CheckIn';
+    await prisma.roomCategory.update({
+      where: { id: categoryId },
+      data: { rooms: roomsData }
+    });
 
     // Update Booking
-    booking.validIdUrl = driveUrl;
-    booking.assignedRoomNumber = room.roomNumber;
-    // Maybe you want to update status to 'checkedIn' ?
-    // booking.status = 'checkedIn'; // Assuming status enum includes it, or leave as confirmed.
-    await booking.save();
+    const updatedBooking = await prisma.booking.update({
+      where: { id },
+      data: {
+        validIdUrl: driveUrl,
+        assignedRoomNumber: roomsData[roomIndex].roomNumber,
+      }
+    });
 
-    res.json({ message: 'Checked in successfully', booking });
+    res.json({ message: 'Checked in successfully', booking: { ...updatedBooking, _id: updatedBooking.id } });
   } catch (error) {
     console.error('Check in error:', error);
     res.status(500).json({ message: 'Internal server error: ' + (error as any).message });
@@ -126,12 +152,23 @@ export const checkInBooking = async (req: AuthRequest, res: Response): Promise<v
 export const getHotelBookings = async (req: Request, res: Response) => {
   try {
     const { hotelId } = req.params;
-    const bookings = await Booking.find({ hotelId })
-      .populate('userId', 'name email phone')
-      .populate('roomCategoryId', 'name')
-      .sort({ createdAt: -1 });
+    const bookings = await prisma.booking.findMany({
+      where: { hotelId },
+      include: {
+        user: { select: { name: true, email: true, phone: true } },
+        roomCategory: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
 
-    res.json(bookings);
+    const formattedBookings = bookings.map(b => ({
+      ...b,
+      _id: b.id,
+      userId: b.user,
+      roomCategoryId: b.roomCategory
+    }));
+
+    res.json(formattedBookings);
   } catch (error) {
     console.error('Get hotel bookings error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -140,16 +177,26 @@ export const getHotelBookings = async (req: Request, res: Response) => {
 
 export const cancelBooking = async (req: Request, res: Response): Promise<void> => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .populate('userId', 'name email')
-      .populate('hotelId', 'name');
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      include: {
+        user: { select: { name: true, email: true } },
+        hotel: { select: { name: true } }
+      }
+    });
 
     if (booking) {
-      booking.status = 'cancelled';
-      const updatedBooking = await booking.save();
+      const updatedBooking = await prisma.booking.update({
+        where: { id: req.params.id },
+        data: { status: 'cancelled' },
+        include: {
+          user: { select: { name: true, email: true } },
+          hotel: { select: { name: true } }
+        }
+      });
       
-      const user = booking.userId as any;
-      const hotel = booking.hotelId as any;
+      const user = updatedBooking.user;
+      const hotel = updatedBooking.hotel;
       
       if (user && user.email) {
         try {
@@ -173,7 +220,12 @@ export const cancelBooking = async (req: Request, res: Response): Promise<void> 
         }
       }
 
-      res.json(updatedBooking);
+      res.json({
+        ...updatedBooking,
+        _id: updatedBooking.id,
+        userId: updatedBooking.user,
+        hotelId: updatedBooking.hotel
+      });
     } else {
       res.status(404).json({ message: 'Booking not found' });
     }
@@ -185,23 +237,35 @@ export const cancelBooking = async (req: Request, res: Response): Promise<void> 
 
 export const getCancellationRequests = async (req: AuthRequest, res: Response) => {
   try {
-    const query: any = { 
-      $or: [
+    const whereConditions: any = { 
+      OR: [
         { cancellationRequested: true, status: 'confirmed' },
         { status: 'cancelled' }
       ]
     };
     if (req.user && req.user.role === 'receptionist' && req.user.hotelId) {
-      query.hotelId = req.user.hotelId;
+      whereConditions.hotelId = req.user.hotelId;
     }
 
-    const requests = await Booking.find(query)
-      .populate('userId', 'name email phone')
-      .populate('hotelId', 'name city state')
-      .populate('roomCategoryId', 'name')
-      .sort({ updatedAt: -1 });
+    const requests = await prisma.booking.findMany({
+      where: whereConditions,
+      include: {
+        user: { select: { name: true, email: true, phone: true } },
+        hotel: { select: { name: true, city: true, state: true } },
+        roomCategory: { select: { name: true } }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
 
-    res.json(requests);
+    const formattedRequests = requests.map(r => ({
+      ...r,
+      _id: r.id,
+      userId: r.user,
+      hotelId: r.hotel,
+      roomCategoryId: r.roomCategory
+    }));
+
+    res.json(formattedRequests);
   } catch (error) {
     console.error('Get cancellation requests error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -210,16 +274,26 @@ export const getCancellationRequests = async (req: AuthRequest, res: Response) =
 
 export const acceptCancellation = async (req: Request, res: Response): Promise<void> => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .populate('userId', 'name email')
-      .populate('hotelId', 'name');
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      include: {
+        user: { select: { name: true, email: true } },
+        hotel: { select: { name: true } }
+      }
+    });
 
     if (booking) {
-      booking.status = 'cancelled';
-      const updatedBooking = await booking.save();
+      const updatedBooking = await prisma.booking.update({
+        where: { id: req.params.id },
+        data: { status: 'cancelled' },
+        include: {
+          user: { select: { name: true, email: true } },
+          hotel: { select: { name: true } }
+        }
+      });
       
-      const user = booking.userId as any;
-      const hotel = booking.hotelId as any;
+      const user = updatedBooking.user;
+      const hotel = updatedBooking.hotel;
       
       if (user && user.email) {
         try {
@@ -243,7 +317,12 @@ export const acceptCancellation = async (req: Request, res: Response): Promise<v
         }
       }
 
-      res.json(updatedBooking);
+      res.json({
+        ...updatedBooking,
+        _id: updatedBooking.id,
+        userId: updatedBooking.user,
+        hotelId: updatedBooking.hotel
+      });
     } else {
       res.status(404).json({ message: 'Booking not found' });
     }

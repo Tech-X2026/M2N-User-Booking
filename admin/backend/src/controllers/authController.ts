@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import Admin from '../models/Admin';
 import { generateSecret, generateURI, verify } from 'otplib';
 import QRCode from 'qrcode';
 import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import prisma from '../utils/prisma';
 
 const generateChallengeToken = (id: string, role: string) => {
   return jwt.sign({ id, role, challenge: true }, process.env.JWT_SECRET as string, {
@@ -38,23 +39,26 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Check for regular Admin login
-    const admin = await Admin.findOne({ email });
-    if (admin && (await admin.matchPassword(password))) {
-      const challengeToken = generateChallengeToken(admin._id.toString(), admin.role);
+    const admin = await prisma.admin.findUnique({ where: { email } });
+    if (admin) {
+      const isMatch = await bcrypt.compare(password, admin.password);
+      if (isMatch) {
+        const challengeToken = generateChallengeToken(admin.id, admin.role);
 
-      if (!admin.twoFactorEnabled) {
+        if (!admin.twoFactorEnabled) {
+          res.json({
+            requiresSetup: true,
+            challengeToken
+          });
+          return;
+        }
+
         res.json({
-          requiresSetup: true,
+          requires2FA: true,
           challengeToken
         });
         return;
       }
-
-      res.json({
-        requires2FA: true,
-        challengeToken
-      });
-      return;
     }
 
     res.status(401).json({ message: 'Invalid email or password' });
@@ -75,7 +79,7 @@ export const setup2FA = async (req: Request, res: Response): Promise<void> => {
        res.status(401).json({ message: 'Invalid token' }); return;
     }
 
-    const admin = await Admin.findById(decoded.id);
+    const admin = await prisma.admin.findUnique({ where: { id: decoded.id } });
     if (!admin) {
        res.status(404).json({ message: 'Admin not found' }); return;
     }
@@ -84,8 +88,10 @@ export const setup2FA = async (req: Request, res: Response): Promise<void> => {
     }
 
     const secret = generateSecret();
-    admin.twoFactorSecret = secret;
-    await admin.save();
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: { twoFactorSecret: secret }
+    });
 
     const otpauthUrl = generateURI({ issuer: 'M2N Hotels', label: admin.email, secret });
     const qrCodeUrl = await QRCode.toDataURL(otpauthUrl);
@@ -112,31 +118,36 @@ export const verifySetup2FA = async (req: Request, res: Response): Promise<void>
   try {
     const { challengeToken, code } = req.body;
     const decoded = jwt.verify(challengeToken, process.env.JWT_SECRET as string) as any;
-    const admin = await Admin.findById(decoded.id);
+    const admin = await prisma.admin.findUnique({ where: { id: decoded.id } });
 
     if (!admin || !admin.twoFactorSecret) {
        res.status(400).json({ message: 'Invalid setup request' }); return;
     }
 
-    const result = await verify({ token: code, secret: admin.twoFactorSecret });
-    if (!result.valid) {
+    const result = verify({ token: code, secret: admin.twoFactorSecret });
+    if (!result) {
        res.status(400).json({ message: 'Invalid verification code' }); return;
     }
 
     const backupCodes = generateBackupCodes();
-    admin.twoFactorBackupCodes = backupCodes.map(c => hashToken(c));
-    admin.twoFactorEnabled = true;
-    admin.twoFactorVerified = true;
-    admin.twoFactorSetupCompletedAt = new Date();
-    await admin.save();
+    
+    const updatedAdmin = await prisma.admin.update({
+      where: { id: admin.id },
+      data: {
+        twoFactorBackupCodes: backupCodes.map(c => hashToken(c)),
+        twoFactorEnabled: true,
+        twoFactorVerified: true,
+        twoFactorSetupCompletedAt: new Date()
+      }
+    });
 
     res.json({
-      id: admin._id,
-      name: admin.name,
-      email: admin.email,
-      role: admin.role,
-      permissions: admin.permissions,
-      token: generateToken(admin._id.toString(), admin.role),
+      id: updatedAdmin.id,
+      name: updatedAdmin.name,
+      email: updatedAdmin.email,
+      role: updatedAdmin.role,
+      permissions: updatedAdmin.permissions,
+      token: generateToken(updatedAdmin.id, updatedAdmin.role),
       backupCodes // Return only once in plain text
     });
   } catch (error: any) {
@@ -148,24 +159,24 @@ export const verifyLogin2FA = async (req: Request, res: Response): Promise<void>
   try {
     const { challengeToken, code } = req.body;
     const decoded = jwt.verify(challengeToken, process.env.JWT_SECRET as string) as any;
-    const admin = await Admin.findById(decoded.id);
+    const admin = await prisma.admin.findUnique({ where: { id: decoded.id } });
 
     if (!admin || !admin.twoFactorSecret) {
        res.status(400).json({ message: 'Invalid login request' }); return;
     }
 
-    const result = await verify({ token: code, secret: admin.twoFactorSecret });
-    if (!result.valid) {
+    const result = verify({ token: code, secret: admin.twoFactorSecret });
+    if (!result) {
        res.status(400).json({ message: 'Invalid verification code' }); return;
     }
 
     res.json({
-      id: admin._id,
+      id: admin.id,
       name: admin.name,
       email: admin.email,
       role: admin.role,
       permissions: admin.permissions,
-      token: generateToken(admin._id.toString(), admin.role),
+      token: generateToken(admin.id, admin.role),
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -176,7 +187,7 @@ export const verifyBackupCode = async (req: Request, res: Response): Promise<voi
   try {
     const { challengeToken, code } = req.body;
     const decoded = jwt.verify(challengeToken, process.env.JWT_SECRET as string) as any;
-    const admin = await Admin.findById(decoded.id);
+    const admin = await prisma.admin.findUnique({ where: { id: decoded.id } });
 
     if (!admin || !admin.twoFactorBackupCodes) {
        res.status(400).json({ message: 'Invalid login request' }); return;
@@ -189,17 +200,21 @@ export const verifyBackupCode = async (req: Request, res: Response): Promise<voi
        res.status(400).json({ message: 'Invalid backup code' }); return;
     }
 
-    // Remove the used backup code
-    admin.twoFactorBackupCodes.splice(codeIndex, 1);
-    await admin.save();
+    const newBackupCodes = [...admin.twoFactorBackupCodes];
+    newBackupCodes.splice(codeIndex, 1);
+
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: { twoFactorBackupCodes: newBackupCodes }
+    });
 
     res.json({
-      id: admin._id,
+      id: admin.id,
       name: admin.name,
       email: admin.email,
       role: admin.role,
       permissions: admin.permissions,
-      token: generateToken(admin._id.toString(), admin.role),
+      token: generateToken(admin.id, admin.role),
     });
   } catch (error: any) {
     res.status(500).json({ message: error.message });

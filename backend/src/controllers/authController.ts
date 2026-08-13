@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
-import User from '../models/User';
+import prisma from '../utils/prisma';
 import { sendEmail, generateOTPEmailHtml } from '../utils/email';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -16,27 +16,26 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const emailLowerCase = email.toLowerCase();
-    const existingUser = await User.findOne({ email: emailLowerCase });
+    const existingUser = await prisma.user.findUnique({ where: { email: emailLowerCase } });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = new User({
-      name,
-      email: emailLowerCase,
-      password: hashedPassword,
-      phone,
-      isVerified: false
-    });
-
-    // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.twoFactorOtp = await bcrypt.hash(otp, 10);
-    user.twoFactorExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+    const hashedOtp = await bcrypt.hash(otp, 10);
 
-    await user.save();
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email: emailLowerCase,
+        password: hashedPassword,
+        phone,
+        isVerified: false,
+        twoFactorOtp: hashedOtp,
+        twoFactorExpires: new Date(Date.now() + 10 * 60 * 1000) // 10 mins
+      }
+    });
 
     await sendEmail({
       to: user.email,
@@ -66,7 +65,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const emailLowerCase = email.toLowerCase();
-    const user = await User.findOne({ email: emailLowerCase });
+    const user = await prisma.user.findUnique({ where: { email: emailLowerCase } });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -84,11 +83,12 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Please verify your email first. Re-register to get a new OTP.' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, {
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: '7d',
     });
 
-    res.json({ user: { _id: user._id, name: user.name, email: user.email, phone: user.phone }, token });
+    // Frontend still expects _id
+    res.json({ user: { _id: user.id, name: user.name, email: user.email, phone: user.phone }, token });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -104,7 +104,7 @@ export const verifyRegistrationOtp = async (req: Request, res: Response) => {
     }
 
     const emailLowerCase = email.toLowerCase();
-    const user = await User.findOne({ email: emailLowerCase });
+    const user = await prisma.user.findUnique({ where: { email: emailLowerCase } });
     if (!user || !user.twoFactorOtp || !user.twoFactorExpires) {
       return res.status(400).json({ message: 'Invalid request' });
     }
@@ -119,16 +119,20 @@ export const verifyRegistrationOtp = async (req: Request, res: Response) => {
     }
 
     // Clear OTP and set verified
-    user.isVerified = true;
-    user.twoFactorOtp = undefined;
-    user.twoFactorExpires = undefined;
-    await user.save();
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        isVerified: true,
+        twoFactorOtp: null,
+        twoFactorExpires: null
+      }
+    });
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, {
+    const token = jwt.sign({ userId: updatedUser.id }, process.env.JWT_SECRET as string, {
       expiresIn: '7d',
     });
 
-    res.json({ user: { _id: user._id, name: user.name, email: user.email, phone: user.phone }, token });
+    res.json({ user: { _id: updatedUser.id, name: updatedUser.name, email: updatedUser.email, phone: updatedUser.phone }, token });
   } catch (error) {
     console.error('Verify OTP error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -144,16 +148,22 @@ export const forgotPassword = async (req: Request, res: Response) => {
     }
 
     const emailLowerCase = email.toLowerCase();
-    const user = await User.findOne({ email: emailLowerCase });
+    const user = await prisma.user.findUnique({ where: { email: emailLowerCase } });
     if (!user) {
       // Return 200 even if user not found for security (prevent email enumeration)
       return res.json({ message: 'If that email is registered, we have sent an OTP.' });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.resetPasswordOtp = await bcrypt.hash(otp, 10);
-    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
-    await user.save();
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetPasswordOtp: hashedOtp,
+        resetPasswordExpires: new Date(Date.now() + 15 * 60 * 1000) // 15 mins
+      }
+    });
 
     await sendEmail({
       to: user.email,
@@ -183,7 +193,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     }
 
     const emailLowerCase = email.toLowerCase();
-    const user = await User.findOne({ email: emailLowerCase });
+    const user = await prisma.user.findUnique({ where: { email: emailLowerCase } });
     if (!user || !user.resetPasswordOtp || !user.resetPasswordExpires) {
       return res.status(400).json({ message: 'Invalid request or expired OTP' });
     }
@@ -197,10 +207,15 @@ export const resetPassword = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid OTP' });
     }
 
-    user.password = await bcrypt.hash(newPassword, 10);
-    user.resetPasswordOtp = undefined;
-    user.resetPasswordExpires = undefined;
-    await user.save();
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        password: hashedPassword,
+        resetPasswordOtp: null,
+        resetPasswordExpires: null
+      }
+    });
 
     res.json({ message: 'Password has been reset successfully' });
   } catch (error) {
@@ -228,23 +243,23 @@ export const googleAuth = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Invalid Google token' });
     }
 
-    let user = await User.findOne({ email: payload.email });
+    let user = await prisma.user.findUnique({ where: { email: payload.email } });
 
     if (!user) {
-      user = new User({
-        name: payload.name,
-        email: payload.email,
-        isVerified: true
-        // password is not set because they use Google Login
+      user = await prisma.user.create({
+        data: {
+          name: payload.name || 'Google User',
+          email: payload.email,
+          isVerified: true
+        }
       });
-      await user.save();
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET as string, {
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, {
       expiresIn: '7d',
     });
 
-    res.json({ user: { _id: user._id, name: user.name, email: user.email, phone: user.phone }, token });
+    res.json({ user: { _id: user.id, name: user.name, email: user.email, phone: user.phone }, token });
   } catch (error) {
     console.error('Google Auth error:', error);
     res.status(500).json({ message: 'Google authentication failed' });

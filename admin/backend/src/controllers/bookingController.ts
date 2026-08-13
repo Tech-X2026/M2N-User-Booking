@@ -1,16 +1,28 @@
 import { Request, Response } from 'express';
-import Booking from '../models/Booking';
+import prisma from '../utils/prisma';
 import { sendEmail } from '../utils/sendEmail';
 
 export const getAllBookings = async (req: Request, res: Response) => {
   try {
-    const bookings = await Booking.find()
-      .populate('userId', 'name email phone')
-      .populate('hotelId', 'name city state')
-      .populate('roomCategoryId', 'name')
-      .sort({ createdAt: -1 });
+    const bookings = await prisma.booking.findMany({
+      include: {
+        user: { select: { name: true, email: true, phone: true } },
+        hotel: { select: { name: true, city: true, state: true } },
+        roomCategory: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
       
-    res.json(bookings);
+    // Format for frontend
+    const formattedBookings = bookings.map(b => ({
+      ...b,
+      _id: b.id,
+      userId: b.user,
+      hotelId: b.hotel,
+      roomCategoryId: b.roomCategory
+    }));
+
+    res.json(formattedBookings);
   } catch (error) {
     console.error('Get all bookings error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -20,12 +32,23 @@ export const getAllBookings = async (req: Request, res: Response) => {
 export const getHotelBookings = async (req: Request, res: Response) => {
   try {
     const { hotelId } = req.params;
-    const bookings = await Booking.find({ hotelId })
-      .populate('userId', 'name email phone')
-      .populate('roomCategoryId', 'name')
-      .sort({ createdAt: -1 });
+    const bookings = await prisma.booking.findMany({
+      where: { hotelId },
+      include: {
+        user: { select: { name: true, email: true, phone: true } },
+        roomCategory: { select: { name: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
 
-    res.json(bookings);
+    const formattedBookings = bookings.map(b => ({
+      ...b,
+      _id: b.id,
+      userId: b.user,
+      roomCategoryId: b.roomCategory
+    }));
+
+    res.json(formattedBookings);
   } catch (error) {
     console.error('Get hotel bookings error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -34,16 +57,27 @@ export const getHotelBookings = async (req: Request, res: Response) => {
 
 export const cancelBooking = async (req: Request, res: Response): Promise<void> => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .populate('userId', 'name email')
-      .populate('hotelId', 'name');
+    const bookingId = req.params.id;
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        user: { select: { name: true, email: true } },
+        hotel: { select: { name: true } }
+      }
+    });
 
     if (booking) {
-      booking.status = 'cancelled';
-      const updatedBooking = await booking.save();
+      const updatedBooking = await prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: 'cancelled' },
+        include: {
+          user: { select: { name: true, email: true } },
+          hotel: { select: { name: true } }
+        }
+      });
       
-      const user = booking.userId as any;
-      const hotel = booking.hotelId as any;
+      const user = updatedBooking.user;
+      const hotel = updatedBooking.hotel;
       
       if (user && user.email) {
         try {
@@ -67,7 +101,12 @@ export const cancelBooking = async (req: Request, res: Response): Promise<void> 
         }
       }
 
-      res.json(updatedBooking);
+      res.json({
+        ...updatedBooking,
+        _id: updatedBooking.id,
+        userId: updatedBooking.user,
+        hotelId: updatedBooking.hotel
+      });
     } else {
       res.status(404).json({ message: 'Booking not found' });
     }
@@ -79,18 +118,30 @@ export const cancelBooking = async (req: Request, res: Response): Promise<void> 
 
 export const getCancellationRequests = async (req: Request, res: Response) => {
   try {
-    const requests = await Booking.find({ 
-      $or: [
-        { cancellationRequested: true, status: 'confirmed' },
-        { status: 'cancelled' }
-      ]
-    })
-      .populate('userId', 'name email phone')
-      .populate('hotelId', 'name city state')
-      .populate('roomCategoryId', 'name')
-      .sort({ updatedAt: -1 });
+    const requests = await prisma.booking.findMany({
+      where: {
+        OR: [
+          { cancellationRequested: true, status: 'confirmed' },
+          { status: 'cancelled' }
+        ]
+      },
+      include: {
+        user: { select: { name: true, email: true, phone: true } },
+        hotel: { select: { name: true, city: true, state: true } },
+        roomCategory: { select: { name: true } }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
 
-    res.json(requests);
+    const formattedRequests = requests.map(r => ({
+      ...r,
+      _id: r.id,
+      userId: r.user,
+      hotelId: r.hotel,
+      roomCategoryId: r.roomCategory
+    }));
+
+    res.json(formattedRequests);
   } catch (error) {
     console.error('Get cancellation requests error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -99,16 +150,27 @@ export const getCancellationRequests = async (req: Request, res: Response) => {
 
 export const acceptCancellation = async (req: Request, res: Response): Promise<void> => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .populate('userId', 'name email')
-      .populate('hotelId', 'name');
+    const bookingId = req.params.id;
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        user: { select: { name: true, email: true } },
+        hotel: { select: { name: true } }
+      }
+    });
 
     if (booking) {
-      booking.status = 'cancelled';
-      const updatedBooking = await booking.save();
+      const updatedBooking = await prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: 'cancelled' },
+        include: {
+          user: { select: { name: true, email: true } },
+          hotel: { select: { name: true } }
+        }
+      });
       
-      const user = booking.userId as any;
-      const hotel = booking.hotelId as any;
+      const user = updatedBooking.user;
+      const hotel = updatedBooking.hotel;
       
       if (user && user.email) {
         try {
@@ -132,7 +194,12 @@ export const acceptCancellation = async (req: Request, res: Response): Promise<v
         }
       }
 
-      res.json(updatedBooking);
+      res.json({
+        ...updatedBooking,
+        _id: updatedBooking.id,
+        userId: updatedBooking.user,
+        hotelId: updatedBooking.hotel
+      });
     } else {
       res.status(404).json({ message: 'Booking not found' });
     }

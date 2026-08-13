@@ -1,14 +1,32 @@
 import { Request, Response } from 'express';
-import Admin from '../models/Admin';
 import bcrypt from 'bcryptjs';
+import prisma from '../utils/prisma';
 
 // @desc    Get all admins
 // @route   GET /api/admin
 // @access  Private/Superadmin
 export const getAdmins = async (req: Request, res: Response): Promise<void> => {
   try {
-    const admins = await Admin.find({}).select('-password');
-    res.json(admins);
+    const admins = await prisma.admin.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        phone: true,
+        permissions: true,
+        twoFactorEnabled: true,
+        twoFactorVerified: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+    // Frontend might expect _id
+    const formattedAdmins = admins.map(admin => ({
+      ...admin,
+      _id: admin.id
+    }));
+    res.json(formattedAdmins);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -19,33 +37,36 @@ export const getAdmins = async (req: Request, res: Response): Promise<void> => {
 // @access  Private/Superadmin
 export const createAdmin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, permissions } = req.body;
 
-    const adminExists = await Admin.findOne({ email });
+    const adminExists = await prisma.admin.findUnique({ where: { email } });
 
     if (adminExists) {
       res.status(400).json({ message: 'Admin already exists' });
       return;
     }
 
-    const admin = await Admin.create({
-      name,
-      email,
-      password,
-      phone,
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await prisma.admin.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        permissions: permissions || [],
+      }
     });
 
-    if (admin) {
-      res.status(201).json({
-        id: admin._id,
-        name: admin.name,
-        email: admin.email,
-        role: admin.role,
-        phone: admin.phone,
-      });
-    } else {
-      res.status(400).json({ message: 'Invalid admin data' });
-    }
+    res.status(201).json({
+      id: admin.id,
+      _id: admin.id,
+      name: admin.name,
+      email: admin.email,
+      role: admin.role,
+      phone: admin.phone,
+      permissions: admin.permissions,
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -56,25 +77,34 @@ export const createAdmin = async (req: Request, res: Response): Promise<void> =>
 // @access  Private/Superadmin
 export const updateAdmin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const admin = await Admin.findById(req.params.id);
+    const adminId = req.params.id;
+    const admin = await prisma.admin.findUnique({ where: { id: adminId } });
 
     if (admin) {
-      admin.name = req.body.name || admin.name;
-      admin.email = req.body.email || admin.email;
-      admin.phone = req.body.phone || admin.phone;
+      const updateData: any = {};
+      
+      if (req.body.name) updateData.name = req.body.name;
+      if (req.body.email) updateData.email = req.body.email;
+      if (req.body.phone) updateData.phone = req.body.phone;
+      if (req.body.permissions !== undefined) updateData.permissions = req.body.permissions;
       
       if (req.body.password) {
-        admin.password = req.body.password;
+        updateData.password = await bcrypt.hash(req.body.password, 10);
       }
 
-      const updatedAdmin = await admin.save();
+      const updatedAdmin = await prisma.admin.update({
+        where: { id: adminId },
+        data: updateData
+      });
 
       res.json({
-        id: updatedAdmin._id,
+        id: updatedAdmin.id,
+        _id: updatedAdmin.id,
         name: updatedAdmin.name,
         email: updatedAdmin.email,
         role: updatedAdmin.role,
         phone: updatedAdmin.phone,
+        permissions: updatedAdmin.permissions,
       });
     } else {
       res.status(404).json({ message: 'Admin not found' });
@@ -89,10 +119,11 @@ export const updateAdmin = async (req: Request, res: Response): Promise<void> =>
 // @access  Private/Superadmin
 export const deleteAdmin = async (req: Request, res: Response): Promise<void> => {
   try {
-    const admin = await Admin.findById(req.params.id);
+    const adminId = req.params.id;
+    const admin = await prisma.admin.findUnique({ where: { id: adminId } });
 
     if (admin) {
-      await admin.deleteOne();
+      await prisma.admin.delete({ where: { id: adminId } });
       res.json({ message: 'Admin removed' });
     } else {
       res.status(404).json({ message: 'Admin not found' });
@@ -107,16 +138,20 @@ export const deleteAdmin = async (req: Request, res: Response): Promise<void> =>
 // @access  Private/Superadmin
 export const resetAdmin2FA = async (req: Request, res: Response): Promise<void> => {
   try {
-    const admin = await Admin.findById(req.params.id);
+    const adminId = req.params.id;
+    const admin = await prisma.admin.findUnique({ where: { id: adminId } });
 
     if (admin) {
-      admin.twoFactorEnabled = false;
-      admin.twoFactorVerified = false;
-      admin.twoFactorSecret = undefined;
-      admin.twoFactorBackupCodes = [];
-      admin.twoFactorSetupCompletedAt = undefined;
-      
-      await admin.save();
+      await prisma.admin.update({
+        where: { id: adminId },
+        data: {
+          twoFactorEnabled: false,
+          twoFactorVerified: false,
+          twoFactorSecret: null,
+          twoFactorBackupCodes: [],
+          twoFactorSetupCompletedAt: null
+        }
+      });
       res.json({ message: '2FA has been reset for this admin' });
     } else {
       res.status(404).json({ message: 'Admin not found' });

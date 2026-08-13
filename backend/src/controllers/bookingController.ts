@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
 import Razorpay from 'razorpay';
-import crypto from 'crypto';
 import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils';
-import Booking from '../models/Booking';
-import RoomCategory from '../models/RoomCategory';
-import '../models/Hotel';
-import '../models/User';
+import prisma from '../utils/prisma';
 
 interface AuthRequest extends Request {
   userId?: string;
@@ -21,7 +17,6 @@ export const checkAvailability = async (req: Request, res: Response) => {
 
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-
     const checkInDateTime = new Date(`${checkIn}T${checkInTime}:00`);
     const now = new Date();
 
@@ -33,19 +28,19 @@ export const checkAvailability = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Check-out must be after check-in' });
     }
 
-    const roomCategory = await RoomCategory.findById(roomCategoryId);
+    const roomCategory = await prisma.roomCategory.findUnique({ where: { id: roomCategoryId } });
     if (!roomCategory) {
       return res.status(404).json({ message: 'Room category not found' });
     }
 
     // Find overlapping bookings that are confirmed
-    const overlappingBookings = await Booking.find({
-      roomCategoryId,
-      status: 'confirmed',
-      $and: [
-        { checkIn: { $lt: checkOutDate } },
-        { checkOut: { $gt: checkInDate } }
-      ]
+    const overlappingBookings = await prisma.booking.findMany({
+      where: {
+        roomCategoryId,
+        status: 'confirmed',
+        checkIn: { lt: checkOutDate },
+        checkOut: { gt: checkInDate }
+      }
     });
 
     const totalBookedRooms = overlappingBookings.reduce((sum, booking) => sum + booking.quantity, 0);
@@ -70,7 +65,6 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
 
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-    
     const checkInDateTime = new Date(`${checkIn}T${checkInTime}:00`);
     const now = new Date();
 
@@ -82,17 +76,16 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'Check-out must be after check-in' });
     }
 
-    // Recalculate availability to prevent race conditions
-    const roomCategory = await RoomCategory.findById(roomCategoryId);
+    const roomCategory = await prisma.roomCategory.findUnique({ where: { id: roomCategoryId } });
     if (!roomCategory) return res.status(404).json({ message: 'Room category not found' });
 
-    const overlappingBookings = await Booking.find({
-      roomCategoryId,
-      status: 'confirmed',
-      $and: [
-        { checkIn: { $lt: checkOutDate } },
-        { checkOut: { $gt: checkInDate } }
-      ]
+    const overlappingBookings = await prisma.booking.findMany({
+      where: {
+        roomCategoryId,
+        status: 'confirmed',
+        checkIn: { lt: checkOutDate },
+        checkOut: { gt: checkInDate }
+      }
     });
 
     const totalBookedRooms = overlappingBookings.reduce((sum, booking) => sum + booking.quantity, 0);
@@ -102,56 +95,53 @@ export const createBooking = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: `Only ${availableRooms} rooms available for these dates` });
     }
 
-    // Calculate nights
     const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
     const totalAmount = nights * roomCategory.price * quantity;
 
-    // Initialize Razorpay
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID as string,
       key_secret: process.env.RAZORPAY_KEY_SECRET as string,
     });
 
     const options = {
-      amount: totalAmount * 100, // Amount is in currency subunits (paise)
+      amount: totalAmount * 100,
       currency: "INR",
       receipt: `receipt_${Date.now()}`
     };
 
     const order = await razorpay.orders.create(options);
 
-    // Generate custom booking ID
-    const lastBooking = await Booking.findOne().sort({ createdAt: -1 });
+    const lastBooking = await prisma.booking.findFirst({ orderBy: { createdAt: 'desc' } });
     let newBookingIdStr = '00000';
     if (lastBooking && lastBooking.bookingId) {
       const lastIdNum = parseInt(lastBooking.bookingId, 10);
       newBookingIdStr = (lastIdNum + 1).toString().padStart(5, '0');
     }
 
-    const booking = new Booking({
-      bookingId: newBookingIdStr,
-      userId: req.userId,
-      hotelId,
-      roomCategoryId,
-      checkIn: checkInDate,
-      checkInTime,
-      checkOut: checkOutDate,
-      checkOutTime,
-      quantity,
-      adults: adults || 1,
-      children: children || 0,
-      totalAmount,
-      status: 'pending',
-      razorpayOrderId: order.id
+    const booking = await prisma.booking.create({
+      data: {
+        bookingId: newBookingIdStr,
+        userId: req.userId,
+        hotelId,
+        roomCategoryId,
+        checkIn: checkInDate,
+        checkInTime,
+        checkOut: checkOutDate,
+        checkOutTime,
+        quantity,
+        adults: adults || 1,
+        children: children || 0,
+        totalAmount,
+        status: 'pending',
+        razorpayOrderId: order.id
+      }
     });
-
-    await booking.save();
 
     res.json({
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
-      bookingId: booking._id,
+      bookingId: booking.id, // Replaced _id with id
       keyId: process.env.RAZORPAY_KEY_ID
     });
   } catch (error) {
@@ -170,20 +160,24 @@ export const verifyPayment = async (req: AuthRequest, res: Response) => {
       process.env.RAZORPAY_KEY_SECRET?.trim() as string
     );
 
-    console.log('Signature Comparison:', { isValid, expectedSecret: process.env.RAZORPAY_KEY_SECRET ? 'Exists' : 'Missing' });
     if (isValid) {
-      const updatedBooking = await Booking.findByIdAndUpdate(bookingId, {
-        status: 'confirmed',
-        razorpayPaymentId: razorpay_payment_id
-      }, { new: true })
-      .populate('userId', 'name email')
-      .populate('hotelId', 'name city state')
-      .populate('roomCategoryId', 'name');
+      const updatedBooking = await prisma.booking.update({
+        where: { id: bookingId },
+        data: {
+          status: 'confirmed',
+          razorpayPaymentId: razorpay_payment_id
+        },
+        include: {
+          user: { select: { name: true, email: true } },
+          hotel: { select: { name: true, city: true, state: true } },
+          roomCategory: { select: { name: true } }
+        }
+      });
 
       if (updatedBooking) {
-        const user = updatedBooking.userId as any;
-        const hotel = updatedBooking.hotelId as any;
-        const room = updatedBooking.roomCategoryId as any;
+        const user = updatedBooking.user;
+        const hotel = updatedBooking.hotel;
+        const room = updatedBooking.roomCategory;
         
         if (user && user.email) {
           try {
@@ -226,7 +220,7 @@ export const verifyPayment = async (req: AuthRequest, res: Response) => {
 
       res.json({ message: 'Payment verified successfully' });
     } else {
-      await Booking.findByIdAndUpdate(bookingId, { status: 'failed' });
+      await prisma.booking.update({ where: { id: bookingId }, data: { status: 'failed' } });
       res.status(400).json({ message: 'Invalid payment signature' });
     }
   } catch (error) {
@@ -239,12 +233,24 @@ export const getMyBookings = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const bookings = await Booking.find({ userId: req.userId })
-      .populate('hotelId', 'name city state images coords')
-      .populate('roomCategoryId', 'name images')
-      .sort({ createdAt: -1 });
+    const bookings = await prisma.booking.findMany({
+      where: { userId: req.userId },
+      include: {
+        hotel: { select: { name: true, city: true, state: true, images: true, lat: true, lng: true } },
+        roomCategory: { select: { name: true, images: true } }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
 
-    res.json(bookings);
+    // Map Prisma relation names to Mongoose ref names to avoid frontend breakage
+    const formattedBookings = bookings.map(b => ({
+      ...b,
+      _id: b.id,
+      hotelId: b.hotel,
+      roomCategoryId: b.roomCategory
+    }));
+
+    res.json(formattedBookings);
   } catch (error) {
     console.error('Get my bookings error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -257,7 +263,7 @@ export const requestCancellation = async (req: AuthRequest, res: Response) => {
     
     const { id } = req.params;
     
-    const booking = await Booking.findOne({ _id: id, userId: req.userId });
+    const booking = await prisma.booking.findFirst({ where: { id, userId: req.userId } });
     
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
@@ -271,8 +277,10 @@ export const requestCancellation = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'Cancellation already requested' });
     }
     
-    booking.cancellationRequested = true;
-    const updatedBooking = await booking.save();
+    const updatedBooking = await prisma.booking.update({
+      where: { id },
+      data: { cancellationRequested: true }
+    });
     
     res.json(updatedBooking);
   } catch (error) {

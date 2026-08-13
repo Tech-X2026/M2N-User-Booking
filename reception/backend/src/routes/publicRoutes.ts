@@ -1,7 +1,5 @@
 import express, { Request, Response } from 'express';
-import Hotel from '../models/Hotel';
-import RoomCategory from '../models/RoomCategory';
-import mongoose from 'mongoose';
+import prisma from '../utils/prisma';
 
 const router = express.Router();
 
@@ -9,29 +7,32 @@ const router = express.Router();
 // @route   GET /api/public/hotels
 router.get('/hotels', async (req: Request, res: Response): Promise<void> => {
   try {
-    const hotels = await Hotel.aggregate([
-      { $match: { isArchived: { $ne: true } } },
-      {
-        $lookup: {
-          from: 'roomcategories',
-          localField: '_id',
-          foreignField: 'hotelId',
-          as: 'categories'
-        }
-      },
-      {
-        $addFields: {
-          totalRooms: { $sum: "$categories.numberOfRooms" },
-          priceFrom: { $min: "$categories.price" }
-        }
-      },
-      {
-        $project: {
-          categories: 0 // We don't need the full categories array here
+    const hotels = await prisma.hotel.findMany({
+      where: { isArchived: false },
+      include: {
+        categories: {
+          select: { numberOfRooms: true, price: true }
         }
       }
-    ]);
-    res.json(hotels);
+    });
+
+    const formattedHotels = hotels.map(hotel => {
+      const totalRooms = hotel.categories.reduce((acc, cat) => acc + cat.numberOfRooms, 0);
+      const priceFrom = hotel.categories.length > 0 ? Math.min(...hotel.categories.map(cat => cat.price)) : null;
+      
+      // Exclude categories to match the original $project
+      const { categories, ...rest } = hotel;
+
+      return {
+        ...rest,
+        _id: hotel.id,
+        coords: { lat: hotel.lat, lng: hotel.lng },
+        totalRooms,
+        priceFrom
+      };
+    });
+
+    res.json(formattedHotels);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -41,16 +42,14 @@ router.get('/hotels', async (req: Request, res: Response): Promise<void> => {
 // @route   GET /api/public/hotels/:id
 router.get('/hotels/:id', async (req: Request, res: Response): Promise<void> => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      res.status(404).json({ message: 'Invalid ID' });
-      return;
-    }
-    const hotel = await Hotel.findOne({ _id: req.params.id, isArchived: { $ne: true } });
+    const hotel = await prisma.hotel.findFirst({
+      where: { id: req.params.id, isArchived: false }
+    });
     if (!hotel) {
       res.status(404).json({ message: 'Hotel not found' });
       return;
     }
-    res.json(hotel);
+    res.json({ ...hotel, _id: hotel.id, coords: { lat: hotel.lat, lng: hotel.lng } });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -60,8 +59,14 @@ router.get('/hotels/:id', async (req: Request, res: Response): Promise<void> => 
 // @route   GET /api/public/hotels/:id/categories
 router.get('/hotels/:id/categories', async (req: Request, res: Response): Promise<void> => {
   try {
-    const categories = await RoomCategory.find({ hotelId: req.params.id });
-    res.json(categories);
+    const categories = await prisma.roomCategory.findMany({
+      where: { hotelId: req.params.id }
+    });
+    const formattedCategories = categories.map(c => ({
+      ...c,
+      _id: c.id
+    }));
+    res.json(formattedCategories);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -71,14 +76,21 @@ router.get('/hotels/:id/categories', async (req: Request, res: Response): Promis
 // @route   GET /api/public/categories
 router.get('/categories', async (req: Request, res: Response): Promise<void> => {
   try {
-    // Populate hotel to get the city/name if needed in the UI
-    const categories = await RoomCategory.find().populate({
-      path: 'hotelId',
-      match: { isArchived: { $ne: true } },
-      select: 'name city'
+    const categories = await prisma.roomCategory.findMany({
+      where: {
+        hotel: { isArchived: false }
+      },
+      include: {
+        hotel: { select: { name: true, city: true } }
+      }
     });
-    // Filter out categories where the hotel is archived (hotelId is null)
-    const activeCategories = categories.filter(c => c.hotelId != null);
+
+    const activeCategories = categories.map(c => ({
+      ...c,
+      _id: c.id,
+      hotelId: c.hotel
+    }));
+
     res.json(activeCategories);
   } catch (error: any) {
     res.status(500).json({ message: error.message });

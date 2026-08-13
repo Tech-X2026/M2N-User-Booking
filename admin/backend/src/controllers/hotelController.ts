@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import Hotel from '../models/Hotel';
+import prisma from '../utils/prisma';
 import { sendEmail } from '../utils/sendEmail';
 import { AuthRequest } from '../middlewares/authMiddleware';
 
@@ -15,24 +15,24 @@ export const createHotel = async (req: Request, res: Response): Promise<void> =>
     const files = req.files as Express.Multer.File[];
     const images = files ? files.map(file => file.path) : [];
 
-    const newHotel = await Hotel.create({
-      name,
-      city,
-      state,
-      type,
-      tagline,
-      address,
-      coords: {
+    const newHotel = await prisma.hotel.create({
+      data: {
+        name,
+        city,
+        state,
+        type,
+        tagline,
+        address,
         lat: Number(lat),
-        lng: Number(lng)
-      },
-      description,
-      images,
-      // @ts-ignore (Assuming req.user is populated by auth middleware)
-      addedBy: req.user?._id
+        lng: Number(lng),
+        description,
+        images,
+        // @ts-ignore
+        addedBy: req.user?._id || req.user?.id
+      }
     });
 
-    res.status(201).json(newHotel);
+    res.status(201).json({ ...newHotel, _id: newHotel.id });
   } catch (error: any) {
     res.status(500).json({ message: error.message || 'Server Error' });
   }
@@ -44,17 +44,31 @@ export const createHotel = async (req: Request, res: Response): Promise<void> =>
 export const getHotels = async (req: Request, res: Response): Promise<void> => {
   try {
     const { archived } = req.query;
-    const filter = archived === 'true' ? { isArchived: true } : { isArchived: { $ne: true } };
     
-    // If no query is provided (or just getting all), maybe we want everything?
-    // We will follow the global categories pattern: if archived=true, return archived, else return non-archived.
-    // If we want all, we could pass archived=all, but let's stick to true/false.
-    if (archived === 'all') {
-      delete (filter as any).isArchived;
+    let filter: any = {};
+    if (archived === 'true') {
+      filter.isArchived = true;
+    } else if (archived !== 'all') {
+      filter.isArchived = false;
     }
 
-    const hotels = await Hotel.find(filter).populate('addedBy', 'name email');
-    res.json(hotels);
+    const hotels = await prisma.hotel.findMany({
+      where: filter,
+      include: {
+        admin: {
+          select: { name: true, email: true }
+        }
+      }
+    });
+    
+    const formattedHotels = hotels.map(hotel => ({
+      ...hotel,
+      _id: hotel.id,
+      addedBy: hotel.admin,
+      coords: { lat: hotel.lat, lng: hotel.lng }
+    }));
+    
+    res.json(formattedHotels);
   } catch (error: any) {
     res.status(500).json({ message: error.message || 'Server Error' });
   }
@@ -66,7 +80,7 @@ export const getHotels = async (req: Request, res: Response): Promise<void> => {
 export const updateHotel = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const hotel = await Hotel.findById(id);
+    const hotel = await prisma.hotel.findUnique({ where: { id } });
 
     if (!hotel) {
       res.status(404).json({ message: 'Hotel not found' });
@@ -78,26 +92,27 @@ export const updateHotel = async (req: Request, res: Response): Promise<void> =>
     const files = req.files as Express.Multer.File[];
     const newImages = files && files.length > 0 ? files.map(file => file.path) : [];
 
-    hotel.name = name || hotel.name;
-    hotel.city = city || hotel.city;
-    hotel.state = state || hotel.state;
-    hotel.type = type || hotel.type;
-    hotel.tagline = tagline || hotel.tagline;
-    hotel.address = address || hotel.address;
-    if (lat !== undefined && lng !== undefined) {
-      hotel.coords = {
-        lat: Number(lat),
-        lng: Number(lng)
-      };
-    }
-    hotel.description = description || hotel.description;
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (city) updateData.city = city;
+    if (state) updateData.state = state;
+    if (type) updateData.type = type;
+    if (tagline) updateData.tagline = tagline;
+    if (address) updateData.address = address;
+    if (lat !== undefined) updateData.lat = Number(lat);
+    if (lng !== undefined) updateData.lng = Number(lng);
+    if (description) updateData.description = description;
 
     if (newImages.length > 0) {
-      hotel.images = [...hotel.images, ...newImages];
+      updateData.images = [...hotel.images, ...newImages];
     }
 
-    const updatedHotel = await hotel.save();
-    res.json(updatedHotel);
+    const updatedHotel = await prisma.hotel.update({
+      where: { id },
+      data: updateData
+    });
+    
+    res.json({ ...updatedHotel, _id: updatedHotel.id, coords: { lat: updatedHotel.lat, lng: updatedHotel.lng } });
   } catch (error: any) {
     res.status(500).json({ message: error.message || 'Server Error' });
   }
@@ -109,7 +124,7 @@ export const updateHotel = async (req: Request, res: Response): Promise<void> =>
 export const deleteHotel = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const hotel = await Hotel.findById(id);
+    const hotel = await prisma.hotel.findUnique({ where: { id } });
 
     if (!hotel) {
       res.status(404).json({ message: 'Hotel not found' });
@@ -117,8 +132,10 @@ export const deleteHotel = async (req: AuthRequest, res: Response): Promise<void
     }
 
     if (req.user && req.user.role === 'superadmin') {
-      hotel.isArchived = true;
-      await hotel.save();
+      await prisma.hotel.update({
+        where: { id },
+        data: { isArchived: true }
+      });
       res.json({ message: 'Hotel archived successfully.' });
       return;
     }
@@ -155,7 +172,7 @@ export const deleteHotel = async (req: AuthRequest, res: Response): Promise<void
 export const restoreHotel = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const hotel = await Hotel.findById(id);
+    const hotel = await prisma.hotel.findUnique({ where: { id } });
 
     if (!hotel) {
       res.status(404).json({ message: 'Hotel not found' });
@@ -163,8 +180,10 @@ export const restoreHotel = async (req: AuthRequest, res: Response): Promise<voi
     }
 
     if (req.user && req.user.role === 'superadmin') {
-      hotel.isArchived = false;
-      await hotel.save();
+      await prisma.hotel.update({
+        where: { id },
+        data: { isArchived: false }
+      });
       res.json({ message: 'Hotel restored successfully.' });
       return;
     }
@@ -203,19 +222,23 @@ export const approveAction = async (req: Request, res: Response): Promise<void> 
     const { token } = req.params;
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { hotelId: string, action: string };
     
-    const hotel = await Hotel.findById(decoded.hotelId);
+    const hotel = await prisma.hotel.findUnique({ where: { id: decoded.hotelId } });
     if (!hotel) {
       res.status(404).send('<h1>Hotel not found</h1>');
       return;
     }
 
     if (decoded.action === 'delete') {
-      hotel.isArchived = true;
-      await hotel.save();
+      await prisma.hotel.update({
+        where: { id: decoded.hotelId },
+        data: { isArchived: true }
+      });
       res.send(`<h1>Hotel "${hotel.name}" has been successfully deleted.</h1>`);
     } else if (decoded.action === 'restore') {
-      hotel.isArchived = false;
-      await hotel.save();
+      await prisma.hotel.update({
+        where: { id: decoded.hotelId },
+        data: { isArchived: false }
+      });
       res.send(`<h1>Hotel "${hotel.name}" has been successfully restored.</h1>`);
     } else {
       res.status(400).send('<h1>Invalid action</h1>');
@@ -233,7 +256,7 @@ export const rejectAction = async (req: Request, res: Response): Promise<void> =
     const { token } = req.params;
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { hotelId: string, action: string };
     
-    const hotel = await Hotel.findById(decoded.hotelId);
+    const hotel = await prisma.hotel.findUnique({ where: { id: decoded.hotelId } });
     if (!hotel) {
       res.status(404).send('<h1>Hotel not found</h1>');
       return;

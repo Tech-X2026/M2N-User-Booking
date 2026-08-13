@@ -1,13 +1,25 @@
 import { Request, Response } from 'express';
-import Receptionist from '../models/Receptionist';
+import bcrypt from 'bcryptjs';
+import prisma from '../utils/prisma';
 
 // @desc    Get all receptionists
 // @route   GET /api/receptionists
 // @access  Private/SuperAdmin
 export const getReceptionists = async (req: Request, res: Response) => {
   try {
-    const receptionists = await Receptionist.find({}).populate('hotelId', 'name');
-    res.json(receptionists);
+    const receptionists = await prisma.receptionist.findMany({
+      include: {
+        hotel: { select: { name: true } }
+      }
+    });
+
+    const formattedReceptionists = receptionists.map(r => ({
+      ...r,
+      _id: r.id,
+      hotelId: r.hotel
+    }));
+
+    res.json(formattedReceptionists);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -20,40 +32,40 @@ export const createReceptionist = async (req: Request, res: Response): Promise<v
   const { name, email, password, phone, hotelId, permissions } = req.body;
 
   try {
-    const receptionistExists = await Receptionist.findOne({ email });
+    const receptionistExists = await prisma.receptionist.findUnique({ where: { email } });
 
     if (receptionistExists) {
       res.status(400).json({ message: 'Receptionist already exists' });
       return;
     }
 
-    const hotelExists = await Receptionist.findOne({ hotelId });
+    const hotelExists = await prisma.receptionist.findUnique({ where: { hotelId } });
     if (hotelExists) {
       res.status(400).json({ message: 'A receptionist is already assigned to this hotel' });
       return;
     }
 
-    const receptionist = await Receptionist.create({
-      name,
-      email,
-      password,
-      phone,
-      hotelId,
-      permissions: permissions || [],
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const receptionist = await prisma.receptionist.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        hotelId,
+        permissions: permissions || [],
+      }
     });
 
-    if (receptionist) {
-      res.status(201).json({
-        _id: receptionist._id,
-        name: receptionist.name,
-        email: receptionist.email,
-        hotelId: receptionist.hotelId,
-        role: receptionist.role,
-        permissions: receptionist.permissions,
-      });
-    } else {
-      res.status(400).json({ message: 'Invalid receptionist data' });
-    }
+    res.status(201).json({
+      _id: receptionist.id,
+      name: receptionist.name,
+      email: receptionist.email,
+      hotelId: receptionist.hotelId,
+      role: receptionist.role,
+      permissions: receptionist.permissions,
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -64,35 +76,39 @@ export const createReceptionist = async (req: Request, res: Response): Promise<v
 // @access  Private/SuperAdmin
 export const updateReceptionist = async (req: Request, res: Response): Promise<void> => {
   try {
-    const receptionist = await Receptionist.findById(req.params.id);
+    const { id } = req.params;
+    const receptionist = await prisma.receptionist.findUnique({ where: { id } });
 
     if (receptionist) {
-      receptionist.name = req.body.name || receptionist.name;
-      receptionist.email = req.body.email || receptionist.email;
-      receptionist.phone = req.body.phone || receptionist.phone;
-      if (req.body.permissions !== undefined) {
-        receptionist.permissions = req.body.permissions;
-      }
+      const updateData: any = {};
+      
+      if (req.body.name) updateData.name = req.body.name;
+      if (req.body.email) updateData.email = req.body.email;
+      if (req.body.phone) updateData.phone = req.body.phone;
+      if (req.body.permissions !== undefined) updateData.permissions = req.body.permissions;
       
       if (req.body.hotelId) {
-        // check if another receptionist is already assigned to this new hotel
-        if (req.body.hotelId !== receptionist.hotelId.toString()) {
-           const hotelExists = await Receptionist.findOne({ hotelId: req.body.hotelId });
+        if (req.body.hotelId !== receptionist.hotelId) {
+           const hotelExists = await prisma.receptionist.findUnique({ where: { hotelId: req.body.hotelId } });
            if (hotelExists) {
              res.status(400).json({ message: 'A receptionist is already assigned to this hotel' });
              return;
            }
         }
-        receptionist.hotelId = req.body.hotelId;
+        updateData.hotelId = req.body.hotelId;
       }
 
       if (req.body.password) {
-        receptionist.password = req.body.password;
+        updateData.password = await bcrypt.hash(req.body.password, 10);
       }
 
-      const updatedReceptionist = await receptionist.save();
+      const updatedReceptionist = await prisma.receptionist.update({
+        where: { id },
+        data: updateData
+      });
+
       res.json({
-        _id: updatedReceptionist._id,
+        _id: updatedReceptionist.id,
         name: updatedReceptionist.name,
         email: updatedReceptionist.email,
         hotelId: updatedReceptionist.hotelId,
@@ -112,10 +128,11 @@ export const updateReceptionist = async (req: Request, res: Response): Promise<v
 // @access  Private/SuperAdmin
 export const deleteReceptionist = async (req: Request, res: Response): Promise<void> => {
   try {
-    const receptionist = await Receptionist.findById(req.params.id);
+    const { id } = req.params;
+    const receptionist = await prisma.receptionist.findUnique({ where: { id } });
 
     if (receptionist) {
-      await receptionist.deleteOne();
+      await prisma.receptionist.delete({ where: { id } });
       res.json({ message: 'Receptionist removed' });
     } else {
       res.status(404).json({ message: 'Receptionist not found' });
