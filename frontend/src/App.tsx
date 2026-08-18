@@ -2,7 +2,6 @@ import { useEffect, useLayoutEffect, useState } from 'react'
 import { Routes, Route, useLocation, Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import CustomCursor from './components/CustomCursor'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import LoadingScreen from './components/LoadingScreen'
@@ -79,7 +78,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-porcelain font-sans text-ink">
       <div className="grain" aria-hidden />
-      <CustomCursor />
 
       <AnimatePresence>
         {!booted && <LoadingScreen key="loader" onDone={() => setBooted(true)} />}

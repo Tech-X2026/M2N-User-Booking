@@ -79,33 +79,31 @@ export default function About() {
         <meta name="description" content="M2N Group of Hotels offers comfortable and well-appointed luxury accommodation in Lucknow, including M2N Aurelia Grand and M2N Zaarang Inn." />
       </Helmet>
 
-      {/* HERO */}
-      <section className="overflow-hidden pb-16 pt-40 md:pt-48">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta">The Group</p>
-          <h1 className="t-hero col-span-12 mt-6 text-[clamp(3.5rem,8vw,9rem)] leading-[0.9]">
-            M2N <em className="font-normal italic text-terracotta">Group Of Hotels</em>
-          </h1>
-        </div>
-      </section>
+      {/* HEADER */}
+      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+        <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">The Group</p>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight">
+          M2N <span className="italic font-medium text-m2n-saffron">Group of Hotels</span>
+        </h1>
+      </div>
 
       {/* STICKY SIDEBAR + SECTIONS */}
-      <div className="editorial-grid pb-16 pt-10 md:pb-24">
+      <div className="max-w-[1280px] mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 pb-24 pt-16">
         {/* Sidebar */}
         <aside className="hidden md:col-span-3 md:block">
-          <div className="sticky top-36">
-            <div className="font-display text-[7rem] font-light leading-none text-line transition-colors duration-500">
+          <div className="sticky top-32">
+            <div className="font-display text-[6rem] font-bold leading-none text-border transition-colors duration-500">
               {active}
             </div>
-            <div className="mt-6 h-px w-24 bg-line">
+            <div className="mt-4 h-1 w-24 bg-bg-soft rounded overflow-hidden">
               <div
-                className="h-px bg-terracotta transition-all duration-700"
+                className="h-full bg-m2n-saffron transition-all duration-700"
                 style={{ width: `${(parseInt(active) / 4) * 100}%` }}
               />
             </div>
-            <ul className="mt-8 flex flex-col gap-3">
+            <ul className="mt-8 flex flex-col gap-4">
               {SECTIONS.map((s) => (
-                <li key={s.num} className={`u-label-sm transition-colors duration-400 ${active === s.num ? 'text-terracotta' : 'text-warm'}`}>
+                <li key={s.num} className={`text-[11px] font-bold uppercase tracking-wider transition-colors duration-400 ${active === s.num ? 'text-m2n-ink' : 'text-text-3'}`}>
                   {s.title}
                 </li>
               ))}
@@ -114,7 +112,7 @@ export default function About() {
         </aside>
 
         {/* Content */}
-        <div className="col-span-12 md:col-span-8 md:col-start-5">
+        <div className="md:col-span-8 md:col-start-5">
           {SECTIONS.map((s, i) => (
             <section
               key={s.id}
@@ -122,28 +120,32 @@ export default function About() {
               ref={(el) => {
                 refs.current[i] = el
               }}
-              className="mb-16 border-t border-line pt-10 md:pt-14 first:border-t-0 first:pt-0 md:mb-24 last:mb-0"
+              className="mb-24 pb-24 border-b border-border last:mb-0 last:pb-0 last:border-b-0"
             >
-              <p className="u-label text-terracotta md:hidden">{s.num} — {s.title}</p>
-              <h2 className="t-quote mt-4 text-[clamp(1.9rem,3.6vw,3.4rem)]">
-                <RiDoubleQuotesL className="mb-4 inline-block text-terracotta" size={26} />
+              <p className="text-[11px] font-bold text-m2n-saffron uppercase tracking-wider md:hidden mb-4">{s.num} — {s.title}</p>
+              <h2 className="font-display text-3xl md:text-4xl text-m2n-ink font-bold leading-tight mb-8">
+                <RiDoubleQuotesL className="inline-block text-m2n-saffron mb-2" size={24} />
                 <br />
                 {s.quote}
               </h2>
-              <div className="mt-10 max-w-[540px]">
+              
+              <div className="max-w-2xl bg-white border border-border p-8 rounded-xl shadow-sm mb-10">
                 {s.body.map((p, j) => (
-                  <p key={j} className="mb-6 text-[0.95rem] font-light leading-[1.85] text-muted last:mb-0">
+                  <p key={j} className="mb-4 text-sm text-text-2 leading-relaxed last:mb-0">
                     {p}
                   </p>
                 ))}
               </div>
-              <div className={`mt-14 ${i % 2 === 0 ? 'md:mr-24' : 'md:ml-24'}`}>
+              
+              <div className="rounded-xl overflow-hidden border border-border">
                 {i % 2 === 0 ? (
-                  <ImageReveal src={s.image} direction="left" className="aspect-[16/10]" viewCursor />
+                  <ImageReveal src={s.image} direction="left" className="aspect-[16/9]" viewCursor />
                 ) : (
-                  <ParallaxImage src={s.image} speed={0.45} className="aspect-[16/10]" viewCursor />
+                  <ParallaxImage src={s.image} speed={0.45} className="aspect-[16/9]" viewCursor />
                 )}
-                <p className="u-label-sm mt-4 text-warm">{s.caption}</p>
+                <div className="bg-bg-soft px-4 py-3 border-t border-border">
+                  <p className="text-[10px] font-bold text-text-2 uppercase tracking-wider text-center">{s.caption}</p>
+                </div>
               </div>
             </section>
           ))}

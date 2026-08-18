@@ -41,70 +41,58 @@ export default function Offers() {
         <meta name="description" content="Seasonal arrangements across the five M2N houses — Royal Escape, Monsoon Retreat, Suite Sojourn and the Long Stay Edit." />
       </Helmet>
 
-      {/* HERO */}
-      <section className="overflow-hidden pb-20 pt-40 md:pb-28 md:pt-48">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta">Arrangements</p>
-          <h1 className="t-hero col-span-12 mt-6 whitespace-nowrap text-[clamp(4rem,15vw,13rem)] leading-[0.85]">
-            <em className="font-normal italic">offers</em>
-          </h1>
-          <p className="col-span-12 mt-10 max-w-[540px] text-[0.95rem] font-light leading-[1.85] text-muted md:col-span-5">
-            We do not discount; we arrange. Each offer bundles the house, its rituals and its people
-            into one considered whole — at a price quieter than the sum of its parts.
-          </p>
-        </div>
-      </section>
+      {/* HEADER */}
+      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+        <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">Arrangements</p>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight italic">
+          Offers
+        </h1>
+        <p className="mt-6 text-sm text-text-2 max-w-lg mx-auto leading-relaxed">
+          We do not discount; we arrange. Each offer bundles the house, its rituals and its people into one considered whole — at a price quieter than the sum of its parts.
+        </p>
+      </div>
 
-      {/* TYPOGRAPHIC LIST */}
-      <section className="pb-16 md:pb-24">
-        <div className="editorial-grid">
-          <div className="col-span-12">
-            {OFFERS.map((o, i) => (
-              <div
-                key={o.title}
-                className="row-shift group grid cursor-pointer grid-cols-12 items-center gap-4 border-b border-line py-12 first:border-t md:py-16"
-                onClick={() => window.dispatchEvent(new Event('m2n:reserve'))}
-              >
-                {/* Big faded number */}
-                <span className="col-span-4 font-display text-[clamp(3.5rem,8vw,8rem)] font-light leading-none text-line transition-colors duration-500 group-hover:text-terracotta/30 md:col-span-2">
-                  0{i + 1}
-                </span>
-
-                {/* Title + desc */}
-                <div className="col-span-8 md:col-span-6">
-                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                    <span className="u-label-sm flex items-center gap-2 text-sage">
-                      <RiPercentLine size={13} /> {o.hotel}
-                    </span>
-                    <span className="u-label-sm flex items-center gap-2 text-warm">
-                      <RiCalendarLine size={13} /> {o.validity}
-                    </span>
-                  </div>
-                  <h3 className="t-section mt-4 text-[clamp(2rem,4.5vw,4rem)] transition-colors duration-400 group-hover:text-terracotta">
-                    {o.title}
-                  </h3>
-                  <p className="mt-4 max-w-[540px] text-[0.92rem] font-light leading-[1.8] text-muted">{o.desc}</p>
-                </div>
-
-                {/* Price + arrow */}
-                <div className="col-span-8 col-start-5 flex items-center justify-between md:col-span-4 md:col-start-9 md:justify-end md:gap-14">
-                  <div className="md:text-right">
-                    <p className="u-label-sm text-warm">From</p>
-                    <p className="t-section mt-1 text-[clamp(1.5rem,2.6vw,2.4rem)] text-terracotta">{inr(o.price)}</p>
-                  </div>
-                  <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-line text-ink transition-all duration-500 group-hover:border-terracotta group-hover:bg-terracotta group-hover:text-porcelain">
-                    <RiArrowRightLine size={20} />
+      {/* LIST */}
+      <div className="max-w-[1080px] mx-auto px-6 pb-32 pt-16">
+        <div className="flex flex-col gap-6">
+          {OFFERS.map((o) => (
+            <div
+              key={o.title}
+              className="group bg-white border border-border rounded-xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-8 cursor-pointer hover:shadow-md transition-all duration-300"
+              onClick={() => window.dispatchEvent(new Event('m2n:reserve'))}
+            >
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <span className="flex items-center gap-1.5 bg-m2n-emerald/10 text-m2n-emerald px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                    <RiPercentLine size={12} /> {o.hotel}
+                  </span>
+                  <span className="flex items-center gap-1.5 bg-bg-stone text-text-2 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">
+                    <RiCalendarLine size={12} /> {o.validity}
                   </span>
                 </div>
+                <h3 className="font-display text-3xl text-m2n-ink font-bold mb-3 group-hover:text-m2n-saffron transition-colors">
+                  {o.title}
+                </h3>
+                <p className="text-sm text-text-2 leading-relaxed max-w-2xl">{o.desc}</p>
               </div>
-            ))}
-          </div>
 
-          <p className="u-label-sm col-span-12 mt-14 text-warm">
-            All arrangements are exclusive of government taxes. Prices quoted in Indian Rupees.
-          </p>
+              <div className="flex items-center justify-between md:flex-col md:items-end md:justify-center gap-4 md:pl-8 md:border-l md:border-border shrink-0">
+                <div className="text-left md:text-right">
+                  <p className="text-[10px] font-bold text-text-3 uppercase tracking-wider mb-1">From</p>
+                  <p className="font-display text-2xl text-m2n-ink font-bold">{inr(o.price)}</p>
+                </div>
+                <span className="flex h-12 w-12 items-center justify-center rounded-full border border-border text-m2n-ink group-hover:border-m2n-saffron group-hover:bg-m2n-saffron group-hover:text-white transition-all duration-300">
+                  <RiArrowRightLine size={18} />
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
+        
+        <p className="text-[10px] font-bold text-text-3 uppercase tracking-widest mt-12 text-center">
+          All arrangements are exclusive of government taxes. Prices quoted in Indian Rupees.
+        </p>
+      </div>
     </>
   )
 }

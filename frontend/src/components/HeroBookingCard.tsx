@@ -27,12 +27,12 @@ export default function HeroBookingCard() {
   const [checkOut, setCheckOut] = useState('');
   
   // Default times for booking
-  const [checkInTime, setCheckInTime] = useState('14:00');
-  const [checkOutTime, setCheckOutTime] = useState('11:00');
+  const [checkInTime] = useState('14:00');
+  const [checkOutTime] = useState('11:00');
 
   const [adults, setAdults] = useState(2);
   const [childrenCount, setChildrenCount] = useState(0);
-  const [quantity, setQuantity] = useState(1); // quantity is rooms
+  const [quantity, setQuantity] = useState(1);
   const [isOccupancyOpen, setIsOccupancyOpen] = useState(false);
 
   const [availability, setAvailability] = useState<any>(null);
@@ -141,7 +141,7 @@ export default function HeroBookingCard() {
           contact: user.phone || ''
         },
         theme: {
-          color: '#B65C43'
+          color: '#d97316' // m2n-saffron
         }
       };
 
@@ -159,13 +159,19 @@ export default function HeroBookingCard() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto bg-white shadow-2xl p-4 border-t-4 border-terracotta relative z-50 rounded-sm">
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+    <div className="search-card z-50 w-full max-w-[1280px] mx-auto">
+      <div className="search-tabs">
+        <button className="stab active">Hotels</button>
+        <button className="stab" onClick={() => navigate('/dining')}>Dining</button>
+        <button className="stab" onClick={() => navigate('/experiences')}>Experiences</button>
+      </div>
+
+      <div className="search-grid mt-4">
         {/* Destination */}
-        <div className="md:col-span-1">
-          <label className="u-label-sm text-muted block mb-1">Destination</label>
+        <div className="sfield focus-within:border-m2n-saffron focus-within:ring-2 focus-within:ring-m2n-saffron/10">
+          <label>DESTINATION</label>
           <select 
-            className="field w-full h-12 bg-cream/30" 
+            className="w-full bg-transparent outline-none text-[13px] font-semibold text-text-1 appearance-none cursor-pointer mt-1"
             value={selectedHotel}
             onChange={(e) => setSelectedHotel(e.target.value)}
           >
@@ -177,10 +183,10 @@ export default function HeroBookingCard() {
         </div>
 
         {/* Room Type */}
-        <div className="md:col-span-1">
-          <label className="u-label-sm text-muted block mb-1">Room Type</label>
+        <div className="sfield focus-within:border-m2n-saffron focus-within:ring-2 focus-within:ring-m2n-saffron/10">
+          <label>ROOM TYPE</label>
           <select 
-            className="field w-full h-12 bg-cream/30" 
+            className="w-full bg-transparent outline-none text-[13px] font-semibold text-text-1 appearance-none cursor-pointer mt-1"
             value={selectedRoom}
             onChange={(e) => { setSelectedRoom(e.target.value); setAvailability(null); }}
             disabled={!selectedHotel || rooms.length === 0}
@@ -192,48 +198,30 @@ export default function HeroBookingCard() {
           </select>
         </div>
 
-        {/* Check In */}
-        <div className="md:col-span-1">
-          <label className="u-label-sm text-muted block mb-1">Check-in</label>
-          <div className="flex gap-1">
+        {/* Check In/Out */}
+        <div className="sfield focus-within:border-m2n-saffron focus-within:ring-2 focus-within:ring-m2n-saffron/10 flex flex-col justify-center">
+          <label>DATES</label>
+          <div className="flex gap-2 items-center mt-1">
             <input 
               type="date" 
-              className="field w-2/3 h-12 bg-cream/30 px-2" 
+              className="w-1/2 bg-transparent outline-none text-[12px] font-semibold text-text-1" 
               value={checkIn} 
               min={todayDate} 
               onChange={e => { setCheckIn(e.target.value); setAvailability(null); }} 
             />
-            <input 
-              type="time" 
-              className="field w-1/3 h-12 bg-cream/30 px-1 text-center text-sm" 
-              value={checkInTime} 
-              onChange={e => { setCheckInTime(e.target.value); setAvailability(null); }} 
-            />
-          </div>
-        </div>
-
-        {/* Check Out */}
-        <div className="md:col-span-1">
-          <label className="u-label-sm text-muted block mb-1">Check-out</label>
-          <div className="flex gap-1">
+            <span className="text-text-3 text-xs">-</span>
             <input 
               type="date" 
-              className="field w-2/3 h-12 bg-cream/30 px-2" 
+              className="w-1/2 bg-transparent outline-none text-[12px] font-semibold text-text-1" 
               value={checkOut} 
               min={checkIn || todayDate} 
               onChange={e => { setCheckOut(e.target.value); setAvailability(null); }} 
-            />
-            <input 
-              type="time" 
-              className="field w-1/3 h-12 bg-cream/30 px-1 text-center text-sm" 
-              value={checkOutTime} 
-              onChange={e => { setCheckOutTime(e.target.value); setAvailability(null); }} 
             />
           </div>
         </div>
 
         {/* Occupancy */}
-        <div className="md:col-span-1">
+        <div className="sfield flex-col justify-center" style={{ position: 'relative' }}>
           <OccupancySelector 
             adults={adults}
             setAdults={(val) => { setAdults(val); setAvailability(null); }}
@@ -247,33 +235,41 @@ export default function HeroBookingCard() {
         </div>
 
         {/* Search Button */}
-        <div className="md:col-span-1">
-          <button 
-            onClick={handleCheckAvailability}
-            disabled={loading || !selectedHotel || !selectedRoom || !checkIn || !checkOut}
-            className="h-12 w-full bg-ink text-porcelain transition-colors hover:bg-terracotta disabled:opacity-50 disabled:cursor-not-allowed u-label"
-          >
-            {loading ? 'Searching...' : 'Search'}
-          </button>
-        </div>
+        <button 
+          onClick={handleCheckAvailability}
+          disabled={loading || !selectedHotel || !selectedRoom || !checkIn || !checkOut}
+          className="sbtn h-full py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Searching...' : 'Check Availability'}
+        </button>
       </div>
 
-      {error && <div className="mt-4 p-3 bg-terracotta/10 text-terracotta text-sm">{error}</div>}
+      <div className="search-extras">
+        <label><input type="checkbox" /> My Dates are Flexible</label>
+        <label><input type="checkbox" /> Add Airport Transfer</label>
+      </div>
+
+      {error && <div className="mt-4 p-3 bg-m2n-rose/10 text-m2n-rose text-sm rounded-md font-medium">{error}</div>}
 
       {/* Expanded Results Section */}
       {availability && (
-        <div className="mt-6 border-t border-line pt-6">
+        <div className="mt-6 border-t border-border pt-6 animate-in slide-in-from-top-2 duration-300">
           {availability.availableRooms > 0 ? (
-            <div className="flex flex-col md:flex-row items-center justify-between bg-cream/30 p-6 rounded-sm">
+            <div className="flex flex-col md:flex-row items-center justify-between bg-bg-soft border border-border p-5 rounded-xl">
               <div>
-                <p className="text-sage text-sm font-medium mb-1">✓ {availability.availableRooms} rooms available</p>
-                <p className="text-2xl t-section">{inr(availability.pricePerNight)} <span className="text-sm text-muted font-sans font-light tracking-normal">/ night</span></p>
+                <p className="text-m2n-emerald text-[13px] font-bold mb-1 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-m2n-emerald inline-block"></span> 
+                  {availability.availableRooms} rooms available
+                </p>
+                <p className="text-2xl font-bold text-m2n-ink">
+                  {inr(availability.pricePerNight)} <span className="text-[11px] text-text-3 font-normal tracking-normal uppercase">/ night</span>
+                </p>
               </div>
               
               <div className="flex items-center gap-6 mt-4 md:mt-0">
-                <div>
-                  <p className="u-label-sm text-muted mb-1">Total</p>
-                  <p className="u-label text-ink h-12 flex items-center">
+                <div className="text-right">
+                  <p className="text-[10px] font-bold text-text-3 uppercase mb-0.5">Total</p>
+                  <p className="text-[18px] font-bold text-m2n-ink">
                     {inr(availability.pricePerNight * quantity * Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 3600 * 24)))}
                   </p>
                 </div>
@@ -281,16 +277,16 @@ export default function HeroBookingCard() {
                 <button 
                   onClick={handleBooking} 
                   disabled={loading}
-                  className="h-12 px-8 bg-terracotta text-white transition-colors hover:bg-ink u-label whitespace-nowrap mt-5 md:mt-0"
+                  className="btn btn-primary px-8 h-11 text-sm whitespace-nowrap shadow-md hover:shadow-lg"
                 >
                   {loading ? 'Processing...' : (user ? 'Book Now' : 'Login to Book')}
                 </button>
               </div>
             </div>
           ) : (
-            <div className="p-6 bg-terracotta/5 text-center">
-              <p className="text-terracotta font-medium">Sorry, no rooms are available for these dates.</p>
-              <p className="text-sm text-muted mt-2">Try selecting different dates or a different room type.</p>
+            <div className="p-6 bg-m2n-rose/5 border border-m2n-rose/20 rounded-xl text-center">
+              <p className="text-m2n-rose font-bold text-sm">Sorry, no rooms are available for these dates.</p>
+              <p className="text-[12px] text-text-2 mt-1 font-medium">Try selecting different dates or a different room type.</p>
             </div>
           )}
         </div>

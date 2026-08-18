@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RiAddLine, RiArrowRightLine, RiMapPinLine, RiTeamLine, RiCheckLine } from 'react-icons/ri'
-import ImageReveal from '../components/ImageReveal'
-import { EASE, u } from '../lib/lib'
+import { u } from '../lib/lib'
 
 const ROLES = [
   {
@@ -78,118 +77,112 @@ export default function Careers() {
         <meta name="description" content="Six open roles across the houses — general management, kitchen, wellness, studio and cellar." />
       </Helmet>
 
-      {/* HERO */}
-      <section className="overflow-hidden pb-24 pt-40 md:pt-48">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta">People</p>
-          <h1 className="t-hero col-span-12 mt-6 whitespace-nowrap text-[clamp(4rem,14vw,12rem)] leading-[0.85]">
-            WE ARE
-          </h1>
-          <h1 className="t-hero col-span-12 -mt-2 whitespace-nowrap text-right text-[clamp(4.5rem,17vw,15rem)] italic leading-[0.85] text-terracotta">
-            <em className="font-normal">hiring.</em>
-          </h1>
-          <p className="col-span-12 mt-12 max-w-[540px] text-[0.95rem] font-light leading-[1.85] text-muted md:col-span-5">
-            We hire slowly and keep people for decades. Six roles are open this season — read the
-            requirements twice; we mean every word of them.
-          </p>
-        </div>
-      </section>
+      {/* HEADER */}
+      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+        <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">People</p>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight">
+          WE ARE <span className="italic font-medium text-m2n-saffron">hiring.</span>
+        </h1>
+        <p className="mt-6 text-sm text-text-2 max-w-lg mx-auto leading-relaxed">
+          We hire slowly and keep people for decades. Six roles are open this season — read the requirements twice; we mean every word of them.
+        </p>
+      </div>
 
       {/* CULTURE STRIP */}
-      <section className="pb-16 md:pb-20">
-        <div className="editorial-grid items-center">
-          <div className="col-span-12 md:col-span-7">
-            <ImageReveal src={u('photo-1493106641515-6b5631de4bb9', 1600)} direction="left" className="aspect-[16/9]" viewCursor />
+      <div className="max-w-[1280px] mx-auto px-6 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-white border border-border rounded-xl p-8 shadow-sm">
+          <div className="h-[300px] rounded-lg overflow-hidden border border-border relative">
+            <img src={u('photo-1493106641515-6b5631de4bb9', 1600)} alt="Team" className="w-full h-full object-cover" />
           </div>
-          <div className="col-span-12 mt-10 md:col-span-4 md:col-start-9 md:mt-0">
-            <RiTeamLine size={28} className="text-terracotta" />
-            <p className="t-quote mt-6 text-[clamp(1.5rem,2.6vw,2.2rem)]">
+          <div className="flex flex-col justify-center">
+            <RiTeamLine size={32} className="text-m2n-saffron mb-6" />
+            <p className="font-display text-3xl text-m2n-ink font-bold leading-tight mb-4">
               &ldquo;Sixty-two artisans, four chefs de cuisine, one court astrologer. All colleagues.&rdquo;
             </p>
-            <p className="u-label-sm mt-6 text-warm">— HR Charter, margin note</p>
+            <p className="text-[11px] font-bold text-text-3 uppercase tracking-wider">— HR Charter, margin note</p>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* ACCORDION LISTINGS */}
-      <section className="pb-16 md:pb-24">
-        <div className="editorial-grid">
-          <div className="col-span-12 md:col-span-10 md:col-start-2">
-            {ROLES.map((r, i) => {
-              const isOpen = open === i
-              return (
-                <div key={r.title} className="border-b border-line first:border-t">
-                  <button
-                    onClick={() => setOpen(isOpen ? null : i)}
-                    className="grid w-full grid-cols-12 items-center gap-3 py-8 text-left md:py-10"
-                  >
-                    <span className="u-label-sm col-span-2 text-warm md:col-span-1">0{i + 1}</span>
-                    <span className="col-span-8 md:col-span-5">
-                      <span className="t-section block text-[clamp(1.6rem,3.4vw,3.2rem)] leading-none transition-colors duration-400 group-hover:text-terracotta">
-                        {r.title}
-                      </span>
+      <div className="max-w-[1080px] mx-auto px-6 pb-32">
+        <div className="flex flex-col gap-4">
+          {ROLES.map((r, i) => {
+            const isOpen = open === i
+            return (
+              <div key={r.title} className="bg-white border border-border rounded-xl overflow-hidden shadow-sm transition-all duration-300">
+                <button
+                  onClick={() => setOpen(isOpen ? null : i)}
+                  className="w-full grid grid-cols-1 md:grid-cols-12 items-center gap-4 p-6 md:p-8 text-left hover:bg-bg-soft transition-colors"
+                >
+                  <span className="text-[11px] font-bold text-m2n-saffron uppercase tracking-widest md:col-span-1">0{i + 1}</span>
+                  <span className="md:col-span-6">
+                    <span className="font-display text-2xl text-m2n-ink font-bold">
+                      {r.title}
                     </span>
-                    <span className="col-span-9 col-start-3 flex flex-col gap-1 md:col-span-4 md:col-start-7">
-                      <span className="u-label-sm text-sage">{r.dept}</span>
-                      <span className="u-label-sm flex items-center gap-2 text-muted">
-                        <RiMapPinLine size={12} className="text-terracotta" /> {r.location}
-                      </span>
+                  </span>
+                  <span className="flex flex-col gap-1 md:col-span-4">
+                    <span className="text-[10px] font-bold text-m2n-emerald uppercase tracking-wider">{r.dept}</span>
+                    <span className="text-xs text-text-2 font-medium flex items-center gap-1.5">
+                      <RiMapPinLine size={14} className="text-m2n-saffron" /> {r.location}
                     </span>
-                    <span className="col-span-3 col-start-10 flex justify-end md:col-span-2 md:col-start-11">
-                      <motion.span
-                        animate={{ rotate: isOpen ? 45 : 0 }}
-                        transition={{ duration: 0.4, ease: EASE }}
-                        className={`flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-400 ${
-                          isOpen ? 'border-terracotta bg-terracotta text-porcelain' : 'border-line text-ink'
-                        }`}
-                      >
-                        <RiAddLine size={18} />
-                      </motion.span>
-                    </span>
-                  </button>
+                  </span>
+                  <span className="hidden md:flex justify-end md:col-span-1">
+                    <motion.span
+                      animate={{ rotate: isOpen ? 45 : 0 }}
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border transition-colors duration-300 ${
+                        isOpen ? 'border-m2n-ink bg-m2n-ink text-white' : 'border-border text-text-2'
+                      }`}
+                    >
+                      <RiAddLine size={20} />
+                    </motion.span>
+                  </span>
+                </button>
 
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.6, ease: EASE }}
-                        className="overflow-hidden"
-                      >
-                        <div className="grid grid-cols-12 gap-6 pb-12 md:pl-[8.333%]">
-                          <div className="col-span-12 md:col-span-7">
-                            <p className="u-label-sm mb-6 text-warm">We ask for</p>
-                            <ul className="flex flex-col gap-4">
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 md:p-8 pt-0 border-t border-border mt-2 bg-bg-soft/50">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-6">
+                          <div className="md:col-span-8 md:col-start-2">
+                            <p className="text-[10px] font-bold text-text-3 uppercase tracking-wider mb-4">We ask for</p>
+                            <ul className="flex flex-col gap-3">
                               {r.reqs.map((req) => (
-                                <li key={req} className="flex items-start gap-3 text-[0.92rem] font-light leading-relaxed text-muted">
-                                  <RiCheckLine size={16} className="mt-0.5 shrink-0 text-sage" />
+                                <li key={req} className="flex items-start gap-3 text-sm text-text-2 font-medium leading-relaxed">
+                                  <RiCheckLine size={18} className="mt-0.5 shrink-0 text-m2n-emerald" />
                                   {req}
                                 </li>
                               ))}
                             </ul>
                           </div>
-                          <div className="col-span-12 flex items-end md:col-span-4 md:col-start-9">
+                          <div className="md:col-span-3 flex items-end justify-start md:justify-end">
                             <a
                               href={`mailto:people@m2nhotels.com?subject=${encodeURIComponent('Application — ' + r.title)}`}
-                              className="u-label link-line text-ink"
+                              className="btn btn-primary px-6 py-2.5 flex items-center gap-2"
                             >
-                              Apply <RiArrowRightLine size={15} className="text-terracotta" />
+                              Apply <RiArrowRightLine size={16} />
                             </a>
                           </div>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )
-            })}
-          </div>
-          <p className="u-label-sm col-span-12 mt-12 text-center text-warm md:col-span-10 md:col-start-2">
-            Nothing fits? Write anyway — people@m2nhotels.com. Slow replies, sincere ones.
-          </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )
+          })}
         </div>
-      </section>
+        
+        <p className="text-[11px] font-bold text-text-3 uppercase tracking-widest mt-12 text-center">
+          Nothing fits? Write anyway — <a href="mailto:people@m2nhotels.com" className="text-m2n-ink hover:text-m2n-saffron hover:underline">people@m2nhotels.com</a>.
+        </p>
+      </div>
     </>
   )
 }

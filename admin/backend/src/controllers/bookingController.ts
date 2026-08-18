@@ -17,9 +17,9 @@ export const getAllBookings = async (req: Request, res: Response) => {
     const formattedBookings = bookings.map(b => ({
       ...b,
       _id: b.id,
-      userId: b.user,
-      hotelId: b.hotel,
-      roomCategoryId: b.roomCategory
+      userId: b.user ? { ...b.user, _id: b.userId } : null,
+      hotelId: b.hotel ? { ...b.hotel, _id: b.hotelId } : null,
+      roomCategoryId: b.roomCategory ? { ...b.roomCategory, _id: b.roomCategoryId } : null
     }));
 
     res.json(formattedBookings);
@@ -44,8 +44,8 @@ export const getHotelBookings = async (req: Request, res: Response) => {
     const formattedBookings = bookings.map(b => ({
       ...b,
       _id: b.id,
-      userId: b.user,
-      roomCategoryId: b.roomCategory
+      userId: b.user ? { ...b.user, _id: b.userId } : null,
+      roomCategoryId: b.roomCategory ? { ...b.roomCategory, _id: b.roomCategoryId } : null
     }));
 
     res.json(formattedBookings);
@@ -104,8 +104,8 @@ export const cancelBooking = async (req: Request, res: Response): Promise<void> 
       res.json({
         ...updatedBooking,
         _id: updatedBooking.id,
-        userId: updatedBooking.user,
-        hotelId: updatedBooking.hotel
+        userId: updatedBooking.user ? { ...updatedBooking.user, _id: updatedBooking.userId } : null,
+        hotelId: updatedBooking.hotel ? { ...updatedBooking.hotel, _id: updatedBooking.hotelId } : null
       });
     } else {
       res.status(404).json({ message: 'Booking not found' });
@@ -136,9 +136,9 @@ export const getCancellationRequests = async (req: Request, res: Response) => {
     const formattedRequests = requests.map(r => ({
       ...r,
       _id: r.id,
-      userId: r.user,
-      hotelId: r.hotel,
-      roomCategoryId: r.roomCategory
+      userId: r.user ? { ...r.user, _id: r.userId } : null,
+      hotelId: r.hotel ? { ...r.hotel, _id: r.hotelId } : null,
+      roomCategoryId: r.roomCategory ? { ...r.roomCategory, _id: r.roomCategoryId } : null
     }));
 
     res.json(formattedRequests);
@@ -197,8 +197,8 @@ export const acceptCancellation = async (req: Request, res: Response): Promise<v
       res.json({
         ...updatedBooking,
         _id: updatedBooking.id,
-        userId: updatedBooking.user,
-        hotelId: updatedBooking.hotel
+        userId: updatedBooking.user ? { ...updatedBooking.user, _id: updatedBooking.userId } : null,
+        hotelId: updatedBooking.hotel ? { ...updatedBooking.hotel, _id: updatedBooking.hotelId } : null
       });
     } else {
       res.status(404).json({ message: 'Booking not found' });

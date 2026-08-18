@@ -31,7 +31,7 @@
   ::selection { background: var(--color-terracotta); color: var(--color-porcelain); }
   img { user-select: none; -webkit-user-drag: none; }
   @media (pointer: fine) {
-    /* body, a, button, input, textarea, select, label, [role="button"] { cursor: none !important; } */
+    a, button, [role="button"], label, select { cursor: pointer !important; }
   }
 }
 

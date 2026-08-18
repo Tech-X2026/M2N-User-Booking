@@ -1,9 +1,6 @@
-import { useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { RiArrowRightLine, RiTimerLine, RiLeafLine, RiDropLine } from 'react-icons/ri'
-import ParallaxImage from '../components/ParallaxImage'
-import { u, inr } from '../lib/lib'
+import { RiTimerLine, RiDropLine } from 'react-icons/ri'
+import { inr, u } from '../lib/lib'
 
 const TREATMENTS = [
   {
@@ -27,120 +24,55 @@ const TREATMENTS = [
 ]
 
 export default function Spa() {
-  const heroRef = useRef<HTMLElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  })
-  const circleScale = useTransform(scrollYProgress, [0, 1], [1, 2.1])
-  const circleOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.15])
-
   return (
-    <>
+    <div className="pb-24 pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
       <Helmet>
-        <title>Spa & Wellness — M2N Group of Hotels</title>
+        <title>Spa & Wellness — M2N Group</title>
         <meta name="description" content="Abhyanga, Shirodhara, Udvartana — Ayurvedic rituals delivered with clinical calm at every M2N spa pavilion." />
       </Helmet>
+      
+      {/* HEADER */}
+      <div className="mb-16 border-b border-border pb-8 text-center">
+        <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">Spa & Wellness</p>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] text-m2n-ink font-bold leading-tight max-w-2xl mx-auto">
+          Stillness is the deepest <br/><span className="italic font-medium text-m2n-saffron">form of luxury.</span>
+        </h1>
+        <p className="mt-6 text-sm text-text-2 max-w-lg mx-auto leading-relaxed">
+          Abhyanga, Shirodhara, Udvartana — Ayurvedic rituals delivered with clinical calm at every M2N spa pavilion. We treat nothing. We remove noise until the body remembers what it already knew.
+        </p>
+      </div>
 
-      {/* HERO — BREATHING CIRCLE */}
-      <section ref={heroRef} className="relative flex h-[100svh] flex-col items-center justify-center overflow-hidden pt-20">
-        <motion.div
-          className="absolute h-[46vmin] w-[46vmin]"
-          style={{ scale: circleScale, opacity: circleOpacity }}
-        >
-          <div className="breathe h-full w-full rounded-full border border-terracotta/50" />
-        </motion.div>
-        <motion.div
-          className="absolute h-[64vmin] w-[64vmin]"
-          style={{ scale: circleScale, opacity: circleOpacity }}
-        >
-          <div className="breathe breathe-rev h-full w-full rounded-full border border-line" />
-        </motion.div>
-        <div className="relative text-center">
-          <p className="u-label text-terracotta">Spa &amp; Wellness</p>
-          <h1 className="t-hero mt-7 text-[clamp(3.4rem,10vw,8.5rem)]">STILLNESS</h1>
-          <p className="t-quote mx-auto mt-7 max-w-[560px] px-6 text-[clamp(1.2rem,2.4vw,2rem)] text-muted">
-            is the deepest form of luxury.
-          </p>
-        </div>
-        <p className="u-label-sm absolute bottom-10 text-warm">Breathe with the page — scroll slowly</p>
-      </section>
-
-      {/* FULL-WIDTH IMAGE */}
-      <section className="py-24 md:py-32">
-        <ParallaxImage
-          src={u('photo-1540555700478-4be289fbecef', 2200)}
-          alt="Spa ritual"
-          speed={0.6}
-          className="h-[80svh] w-full"
-          viewCursor
-        />
-        <div className="editorial-grid mt-6">
-          <p className="u-label-sm col-span-12 text-warm md:col-span-4">
-            The Spa Pavilion — M2N Goa Coast House
-          </p>
-        </div>
-      </section>
-
-      {/* PHILOSOPHY STRIP */}
-      <section className="border-y border-line bg-cream/60 py-24 md:py-32">
-        <div className="editorial-grid">
-          <RiLeafLine className="col-span-12 text-sage md:col-span-1" size={30} />
-          <p className="t-quote col-span-12 text-[clamp(1.6rem,3vw,2.6rem)] md:col-span-9">
-            &ldquo;We treat nothing. We remove noise until the body remembers what it already knew.&rdquo;
-          </p>
-          <p className="u-label-sm col-span-12 self-end text-warm md:col-span-2">— Spa Charter, No. 03</p>
-        </div>
-      </section>
-
-      {/* TREATMENTS */}
-      <section className="py-32 md:py-44">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta md:col-span-3">Rituals</p>
-          <h2 className="t-section col-span-12 mt-2 text-[clamp(2.2rem,4.5vw,4rem)] md:col-span-6">
-            Three ways <em className="font-normal italic">to disappear.</em>
-          </h2>
-
-          <div className="col-span-12 mt-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 mb-16">
+         <div className="rounded-xl overflow-hidden shadow-sm h-[300px] md:h-auto">
+            <img src={u('photo-1540555700478-4be289fbecef', 1200)} alt="Spa" className="w-full h-full object-cover" />
+         </div>
+         <div className="flex flex-col gap-6 justify-center">
             {TREATMENTS.map((t, i) => (
-              <div
-                key={t.name}
-                className="row-shift group grid grid-cols-12 items-baseline gap-4 border-b border-line py-12 first:border-t md:py-16"
-              >
-                <span className="u-label col-span-2 text-warm md:col-span-1">0{i + 1}</span>
-                <h3 className="t-section col-span-10 text-[clamp(2rem,5vw,4.4rem)] transition-colors duration-400 group-hover:text-terracotta md:col-span-5">
-                  {t.name}
-                </h3>
-                <p className="col-span-10 col-start-3 max-w-[440px] text-[0.92rem] font-light leading-[1.8] text-muted md:col-span-4 md:col-start-7">
-                  {t.desc}
-                </p>
-                <div className="col-span-10 col-start-3 md:col-span-2 md:col-start-11 md:text-right">
-                  <p className="u-label-sm flex items-center gap-2 text-muted md:justify-end">
-                    <RiTimerLine size={13} className="text-terracotta" /> {t.time}
-                  </p>
-                  <p className="t-section mt-3 text-2xl text-terracotta">{inr(t.price)}</p>
+              <div key={t.name} className="border-b border-border pb-6 last:border-0 last:pb-0">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-display text-2xl text-m2n-ink font-bold">{t.name}</h3>
+                  <span className="text-[10px] font-bold text-m2n-saffron uppercase tracking-widest">0{i+1}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[12px] text-text-2 font-medium mb-3">
+                  <RiTimerLine className="text-m2n-saffron"/> {t.time}
+                </div>
+                <p className="text-sm text-text-2 leading-relaxed mb-4">{t.desc}</p>
+                <div className="flex justify-between items-center">
+                   <p className="text-m2n-ink font-bold">{inr(t.price)}</p>
+                   <button className="btn btn-ghost px-4 py-2 text-xs">Book Ritual</button>
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="col-span-12 mt-24 flex flex-col items-start justify-between gap-10 md:flex-row md:items-end">
-            <div className="flex items-start gap-5">
-              <RiDropLine className="mt-1 text-terracotta" size={22} />
-              <p className="max-w-[440px] text-[0.95rem] font-light leading-[1.85] text-muted">
-                Every ritual includes the steam grotto, the salt wall and ninety unhurried minutes
-                afterwards in the tea court — phones sleep in lockers here.
-              </p>
-            </div>
-            <button
-              onClick={() => window.dispatchEvent(new Event('m2n:reserve'))}
-              className="btn-outline"
-            >
-              Book a Ritual <RiArrowRightLine size={15} />
-            </button>
-          </div>
-        </div>
-      </section>
-    </>
+         </div>
+      </div>
+      
+      {/* FOOTER NOTE */}
+      <div className="bg-bg-soft rounded-xl p-8 flex items-start gap-4">
+         <RiDropLine className="text-m2n-saffron shrink-0" size={24} />
+         <p className="text-sm text-text-2 leading-relaxed">
+            Every ritual includes the steam grotto, the salt wall and ninety unhurried minutes afterwards in the tea court — phones sleep in lockers here.
+         </p>
+      </div>
+    </div>
   )
 }

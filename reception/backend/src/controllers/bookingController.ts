@@ -24,9 +24,9 @@ export const getAllBookings = async (req: AuthRequest, res: Response) => {
     const formattedBookings = bookings.map(b => ({
       ...b,
       _id: b.id,
-      userId: b.user,
-      hotelId: b.hotel,
-      roomCategoryId: b.roomCategory
+      userId: b.user ? { ...b.user, _id: b.userId } : null,
+      hotelId: b.hotel ? { ...b.hotel, _id: b.hotelId } : null,
+      roomCategoryId: b.roomCategory ? { ...b.roomCategory, _id: b.roomCategoryId } : null
     }));
 
     res.json(formattedBookings);
@@ -164,8 +164,8 @@ export const getHotelBookings = async (req: Request, res: Response) => {
     const formattedBookings = bookings.map(b => ({
       ...b,
       _id: b.id,
-      userId: b.user,
-      roomCategoryId: b.roomCategory
+      userId: b.user ? { ...b.user, _id: b.userId } : null,
+      roomCategoryId: b.roomCategory ? { ...b.roomCategory, _id: b.roomCategoryId } : null
     }));
 
     res.json(formattedBookings);
@@ -223,8 +223,8 @@ export const cancelBooking = async (req: Request, res: Response): Promise<void> 
       res.json({
         ...updatedBooking,
         _id: updatedBooking.id,
-        userId: updatedBooking.user,
-        hotelId: updatedBooking.hotel
+        userId: updatedBooking.user ? { ...updatedBooking.user, _id: updatedBooking.userId } : null,
+        hotelId: updatedBooking.hotel ? { ...updatedBooking.hotel, _id: updatedBooking.hotelId } : null
       });
     } else {
       res.status(404).json({ message: 'Booking not found' });
@@ -260,9 +260,9 @@ export const getCancellationRequests = async (req: AuthRequest, res: Response) =
     const formattedRequests = requests.map(r => ({
       ...r,
       _id: r.id,
-      userId: r.user,
-      hotelId: r.hotel,
-      roomCategoryId: r.roomCategory
+      userId: r.user ? { ...r.user, _id: r.userId } : null,
+      hotelId: r.hotel ? { ...r.hotel, _id: r.hotelId } : null,
+      roomCategoryId: r.roomCategory ? { ...r.roomCategory, _id: r.roomCategoryId } : null
     }));
 
     res.json(formattedRequests);
@@ -320,8 +320,8 @@ export const acceptCancellation = async (req: Request, res: Response): Promise<v
       res.json({
         ...updatedBooking,
         _id: updatedBooking.id,
-        userId: updatedBooking.user,
-        hotelId: updatedBooking.hotel
+        userId: updatedBooking.user ? { ...updatedBooking.user, _id: updatedBooking.userId } : null,
+        hotelId: updatedBooking.hotel ? { ...updatedBooking.hotel, _id: updatedBooking.hotelId } : null
       });
     } else {
       res.status(404).json({ message: 'Booking not found' });
@@ -329,5 +329,155 @@ export const acceptCancellation = async (req: Request, res: Response): Promise<v
   } catch (error: any) {
     console.error('Accept cancellation error:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const getAvailableRooms = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { categoryId, checkIn, checkOut } = req.query;
+    
+    if (!categoryId || !checkIn || !checkOut) {
+      res.status(400).json({ message: 'Missing parameters' });
+      return;
+    }
+
+    const checkInDate = new Date(checkIn as string);
+    const checkOutDate = new Date(checkOut as string);
+
+    // Get the category and its rooms
+    const category = await prisma.roomCategory.findUnique({ where: { id: categoryId as string } });
+    if (!category) {
+      res.status(404).json({ message: 'Category not found' });
+      return;
+    }
+
+    const allRooms = Array.isArray(category.rooms) ? category.rooms : [];
+
+    // Find overlapping bookings for this category
+    const overlappingBookings = await prisma.booking.findMany({
+      where: {
+        roomCategoryId: categoryId as string,
+        status: 'confirmed',
+        checkIn: { lt: checkOutDate },
+        checkOut: { gt: checkInDate }
+      }
+    });
+
+    const bookedRoomNumbers = overlappingBookings.map(b => b.assignedRoomNumber).filter(Boolean);
+
+    // Filter available rooms (only show rooms that are physically 'Ready' and not booked)
+    const availableRooms = allRooms.filter((room: any) => 
+      room && 
+      room.status === 'Ready' && 
+      !bookedRoomNumbers.includes(room.roomNumber)
+    );
+
+    res.json(availableRooms);
+  } catch (error) {
+    console.error('Get available rooms error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const createWalkinBooking = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { hotelId, roomCategoryId, checkIn, checkOut, quantity, adults, children, guestName, phone, email, address, nationality, assignedRoomNumber } = req.body;
+    const file = req.file as Express.Multer.File;
+    
+    if (!guestName || !phone || !assignedRoomNumber || !file) {
+      res.status(400).json({ message: 'Missing required fields or ID document' });
+      return;
+    }
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+
+    // Handle User creation or lookup
+    let user;
+    if (email && email !== 'null' && email !== '') {
+      user = await prisma.user.findUnique({ where: { email } });
+    }
+    
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          name: guestName,
+          email: (email && email !== 'null' && email !== '') ? email : `walkin_${Date.now()}@m2n.com`, // dummy email if none provided
+          phone: phone,
+          nationality: (nationality && nationality !== 'null') ? nationality : null
+        }
+      });
+    }
+
+    const category = await prisma.roomCategory.findUnique({ where: { id: roomCategoryId } });
+    if (!category) {
+       res.status(404).json({ message: 'Category not found' });
+       return;
+    }
+
+    // Get Hotel name for folder structure
+    const hotel = await prisma.hotel.findUnique({ where: { id: hotelId } });
+    if (!hotel) {
+      res.status(404).json({ message: 'Hotel not found' });
+      return;
+    }
+
+    const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 3600 * 24));
+    const totalAmount = nights * category.price * Number(quantity || 1);
+
+    // Generate 5-digit ID
+    const lastBooking = await prisma.booking.findFirst({ orderBy: { createdAt: 'desc' } });
+    let newBookingIdStr = '00000';
+    if (lastBooking && lastBooking.bookingId) {
+      const lastIdNum = parseInt(lastBooking.bookingId, 10);
+      newBookingIdStr = (lastIdNum + 1).toString().padStart(5, '0');
+    }
+
+    // Upload to Google Drive
+    const extension = file.originalname.split('.').pop() || 'png';
+    const driveUrl = await uploadToDrive(
+      file.buffer,
+      file.mimetype,
+      extension,
+      newBookingIdStr, // Using bookingId as folder/reference
+      hotel.name
+    );
+
+    // Create booking
+    const booking = await prisma.booking.create({
+      data: {
+        bookingId: newBookingIdStr,
+        userId: user.id,
+        hotelId,
+        roomCategoryId,
+        checkIn: checkInDate,
+        checkInTime: "12:00", // default
+        checkOut: checkOutDate,
+        checkOutTime: "11:00", // default
+        quantity: Number(quantity || 1),
+        adults: Number(adults || 1),
+        children: Number(children || 0),
+        totalAmount,
+        status: 'confirmed', // walkins are confirmed immediately
+        validIdUrl: driveUrl,
+        assignedRoomNumber
+      }
+    });
+
+    // Update Room Status in RoomCategory
+    let roomsData = Array.isArray(category.rooms) ? category.rooms : [];
+    const roomIndex = roomsData.findIndex((r: any) => r.roomNumber === assignedRoomNumber);
+    if (roomIndex !== -1 && roomsData[roomIndex]) {
+      (roomsData[roomIndex] as any).status = 'CheckIn'; // or 'Occupied'
+      await prisma.roomCategory.update({
+        where: { id: roomCategoryId },
+        data: { rooms: roomsData }
+      });
+    }
+
+    res.json({ message: 'Walk-in booking created successfully', booking: { ...booking, _id: booking.id } });
+  } catch (error) {
+    console.error('Create walkin booking error:', error);
+    res.status(500).json({ message: 'Internal server error: ' + (error as any).message });
   }
 };

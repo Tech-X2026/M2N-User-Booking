@@ -246,8 +246,8 @@ export const getMyBookings = async (req: AuthRequest, res: Response) => {
     const formattedBookings = bookings.map(b => ({
       ...b,
       _id: b.id,
-      hotelId: b.hotel,
-      roomCategoryId: b.roomCategory
+      hotelId: b.hotel ? { ...b.hotel, _id: b.hotelId } : null,
+      roomCategoryId: b.roomCategory ? { ...b.roomCategory, _id: b.roomCategoryId } : null
     }));
 
     res.json(formattedBookings);

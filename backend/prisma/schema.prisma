@@ -10,9 +10,10 @@ datasource db {
 model User {
   id                   String    @id @default(uuid())
   name                 String
-  email                String    @unique
+  email                String?   @unique
   password             String?
   phone                String?
+  nationality          String?
   resetPasswordOtp     String?
   resetPasswordExpires DateTime?
   twoFactorOtp         String?
@@ -100,6 +101,7 @@ model RoomCategory {
   features      String[]
   images        String[]
   galleryImages String[]
+  rooms         Json?     @default("[]")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   hotel         Hotel     @relation(fields: [hotelId], references: [id], onDelete: Cascade)
@@ -123,6 +125,8 @@ model Booking {
   status                String       @default("pending") // pending, confirmed, failed, cancelled
   razorpayOrderId       String?
   razorpayPaymentId     String?
+  validIdUrl            String?
+  assignedRoomNumber    String?
   cancellationRequested Boolean      @default(false)
   createdAt             DateTime     @default(now())
   updatedAt             DateTime     @updatedAt

@@ -1,8 +1,6 @@
-import { useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { RiTimerLine, RiMapPinLine, RiArrowRightLine } from 'react-icons/ri'
-import ImageReveal from '../components/ImageReveal'
-import { getLenis, inr, u } from '../lib/lib'
+import { RiTimerLine, RiMapPinLine } from 'react-icons/ri'
+import { inr, u } from '../lib/lib'
 
 const RESTAURANTS = [
   {
@@ -15,7 +13,6 @@ const RESTAURANTS = [
     desc: 'Recipes recovered from the Mewar and Amber court kitchens — laal maas slow-cooked for six hours, safed maas perfumed with white pepper, breads from a clay oven that has not cooled since opening night.',
     signature: 'Jungli Maas · Ghewar with Rabri',
     image: u('photo-1585937421612-70a008356fbe', 1600),
-    direction: 'left' as const,
   },
   {
     id: 'verandah',
@@ -27,7 +24,6 @@ const RESTAURANTS = [
     desc: 'Under the Lutyens colonnade: railway lamb curry, dak bungalow chicken, and a khichdi that regulars cross the city for. Breakfast runs late here, deliberately — mornings are a course, not a slot.',
     signature: 'Dak Bungalow Chicken · Baked Alaska',
     image: u('photo-1517248135467-4c7edcad34c4', 1600),
-    direction: 'bottom' as const,
   },
   {
     id: 'copper-vine',
@@ -39,7 +35,6 @@ const RESTAURANTS = [
     desc: 'Copper pans hung over a live fire, a cellar of four hundred labels, and the lake one staircase below every table. The grill works only with whole carcass and seasonal catch — ask what arrived this morning.',
     signature: 'Wood-fired Raan · Sula Reserve Vertical',
     image: u('photo-1414235077428-338989a2e8c0', 1600),
-    direction: 'left' as const,
   },
   {
     id: 'chai-room',
@@ -51,114 +46,60 @@ const RESTAURANTS = [
     desc: 'A cedar-panelled tea room at 2,400 metres. First-flush Darjeelings, kangra greens and house masala, poured beside a hearth fire, with scones and hill-station patties from the 1948 bakery ledger.',
     signature: 'Masala Chai · Ridge Honey Cake',
     image: u('photo-1544787219-7f47ccb76574', 1600),
-    direction: 'bottom' as const,
   },
 ]
 
 export default function Dining() {
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({})
-
-  const scrollTo = (id: string) => {
-    const el = sectionRefs.current[id]
-    if (el) getLenis()?.scrollTo(el, { offset: -90 })
-  }
-
   return (
-    <>
+    <div className="pb-24 pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
       <Helmet>
-        <title>Dining — M2N Group of Hotels</title>
-        <meta name="description" content="Four tables across four houses: Saffron, The Verandah, Copper & Vine, and The Chai Room." />
+        <title>Dining — M2N Group</title>
       </Helmet>
 
-      <section className="pb-16 md:pb-24 pt-40 md:pt-48">
-        <div className="editorial-grid">
-          {/* STICKY LEFT RAIL */}
-          <aside className="hidden md:col-span-3 md:block">
-            <div className="sticky top-32 flex h-[70vh] flex-col">
-              <h1
-                className="t-hero text-[clamp(3.5rem,7vw,6rem)] leading-none text-ink"
-                style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}
-              >
-                DINING
-              </h1>
-              <div className="absolute bottom-0 left-0 flex flex-col gap-4">
-                <p className="u-label-sm mb-2 text-warm">The Tables</p>
-                {RESTAURANTS.map((r, i) => (
-                  <button
-                    key={r.id}
-                    onClick={() => scrollTo(r.id)}
-                    className="u-label group flex items-center gap-4 text-left text-muted transition-colors hover:text-terracotta"
-                  >
-                    <span className="text-warm">0{i + 1}</span>
-                    <span className="link-line">{r.name}</span>
-                  </button>
-                ))}
-              </div>
+      {/* HEADER */}
+      <div className="mb-16 border-b border-border pb-8 text-center">
+        <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">Gastronomy</p>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] text-m2n-ink font-bold leading-tight max-w-2xl mx-auto">
+          Food is the shortest route <br/><span className="italic font-medium text-m2n-saffron">to a place.</span>
+        </h1>
+        <p className="mt-6 text-sm text-text-2 max-w-lg mx-auto leading-relaxed">
+          Four tables across four houses — each built from the ledgers of its own region, each committed to slow technique over seasonal theatre.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+        {RESTAURANTS.map((r, i) => (
+          <div key={r.id} className="group bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+            <div className="h-[280px] md:h-[340px] relative overflow-hidden">
+               <img src={r.image} alt={r.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+               <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded text-[10px] font-bold text-m2n-ink uppercase tracking-wider shadow-sm">
+                 {r.cuisine}
+               </div>
             </div>
-          </aside>
-
-          {/* CONTENT */}
-          <div className="col-span-12 md:col-span-8 md:col-start-5">
-            <p className="u-label text-terracotta md:hidden">01 — Dining</p>
-            <h2 className="t-quote mt-4 max-w-[560px] text-[clamp(1.9rem,3.8vw,3.4rem)]">
-              Food is the shortest route to a place. <em className="text-sage">We keep the roads old.</em>
-            </h2>
-            <p className="mt-8 max-w-[540px] text-[0.95rem] font-light leading-[1.85] text-muted">
-              Four tables across four houses — each built from the ledgers of its own region,
-              each committed to slow technique over seasonal theatre.
-            </p>
-
-            {RESTAURANTS.map((r, i) => (
-              <article
-                key={r.id}
-                ref={(el) => {
-                  sectionRefs.current[r.id] = el
-                }}
-                className="mt-24 border-t border-line pt-16 md:mt-32"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-4">
-                  <p className="u-label text-terracotta">0{i + 1} — {r.cuisine}</p>
-                  <p className="u-label-sm text-warm">{r.hotel}</p>
-                </div>
-
-                <ImageReveal
-                  src={r.image}
-                  alt={r.name}
-                  direction={r.direction}
-                  className={`mt-8 block aspect-[16/9] ${i % 2 === 1 ? 'md:mr-16' : 'md:ml-16'}`}
-                  imgClassName="absolute inset-0 w-full h-full object-cover"
-                  viewCursor
-                />
-
-                <div className={`mt-12 grid grid-cols-1 gap-10 md:grid-cols-2 ${i % 2 === 1 ? 'md:mr-16' : ''}`}>
-                  <div>
-                    <h3 className="t-section text-[clamp(2.2rem,4vw,3.6rem)]">{r.name}</h3>
-                    <div className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-2">
-                      <span className="u-label-sm flex items-center gap-2 text-muted">
-                        <RiTimerLine size={14} className="text-terracotta" /> {r.hours}
-                      </span>
-                      <span className="u-label-sm flex items-center gap-2 text-muted">
-                        <RiMapPinLine size={14} className="text-terracotta" /> {r.hotel.replace('M2N ', '')}
-                      </span>
-                    </div>
-                    <p className="u-label mt-7 text-sage">Signature — {r.signature}</p>
-                  </div>
-                  <div>
-                    <p className="max-w-[460px] text-[0.95rem] font-light leading-[1.85] text-muted">{r.desc}</p>
-                    <p className="u-label mt-7 text-terracotta">Tasting from {inr(r.price)} / guest</p>
-                    <button
-                      onClick={() => window.dispatchEvent(new Event('m2n:reserve'))}
-                      className="u-label link-line mt-6 text-ink"
-                    >
-                      Book a Table <RiArrowRightLine size={15} className="text-terracotta" />
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
+            <div className="p-6 md:p-8 flex flex-col flex-grow">
+               <div className="flex justify-between items-start mb-2">
+                 <h3 className="font-display text-2xl text-m2n-ink font-bold">{r.name}</h3>
+                 <span className="text-[10px] font-bold text-m2n-saffron uppercase tracking-widest">0{i+1}</span>
+               </div>
+               <div className="flex flex-wrap gap-4 text-[12px] text-text-2 font-medium mb-4">
+                  <span className="flex items-center gap-1.5"><RiMapPinLine className="text-m2n-saffron"/> {r.hotel.replace('M2N ', '')}</span>
+                  <span className="flex items-center gap-1.5"><RiTimerLine className="text-m2n-saffron"/> {r.hours}</span>
+               </div>
+               <p className="text-sm text-text-2 leading-relaxed mb-6 flex-grow">{r.desc}</p>
+               
+               <div className="border-t border-border pt-4 mt-auto">
+                 <p className="text-[11px] font-bold text-text-3 uppercase tracking-wider mb-2">Signature</p>
+                 <p className="text-[13px] text-m2n-ink font-medium mb-4">{r.signature}</p>
+                 
+                 <div className="flex items-center justify-between">
+                   <p className="text-sm text-m2n-saffron font-bold">From {inr(r.price)} <span className="text-[10px] text-text-3 font-normal uppercase tracking-wider">/ Guest</span></p>
+                   <button className="btn btn-ghost px-4 py-2 text-xs">Reserve</button>
+                 </div>
+               </div>
+            </div>
           </div>
-        </div>
-      </section>
-    </>
+        ))}
+      </div>
+    </div>
   )
 }

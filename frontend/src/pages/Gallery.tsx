@@ -8,7 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { RiCloseLine } from 'react-icons/ri'
 import 'swiper/css'
 import 'swiper/css/navigation'
-import { u, EASE } from '../lib/lib'
+import { u } from '../lib/lib'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -85,54 +85,52 @@ export default function Gallery() {
         <meta name="description" content="Twenty frames from five addresses — courtyards, spa grottos, lake terraces and ridge lines." />
       </Helmet>
 
-      {/* HERO */}
-      <section className="overflow-hidden pb-16 pt-40 md:pt-48">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta">The Archive</p>
-          <h1 className="t-hero col-span-12 mt-6 whitespace-nowrap text-[clamp(4rem,15vw,13rem)] leading-[0.85]">
-            <em className="font-normal italic">gallery</em>
-          </h1>
-          <p className="u-label-sm col-span-12 mt-8 text-warm md:col-span-4">
-            Twenty frames · Two speeds · Click any window
-          </p>
-        </div>
-      </section>
+      {/* HEADER */}
+      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+        <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">The Archive</p>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight italic">
+          Gallery
+        </h1>
+        <p className="mt-6 text-[11px] font-bold text-text-3 uppercase tracking-widest max-w-lg mx-auto">
+          Twenty frames · Two speeds · Click any window
+        </p>
+      </div>
 
       {/* TWO-SPEED COLUMNS */}
-      <section ref={wrapRef} className="pb-16 md:pb-24">
-        <div className="editorial-grid">
-          <div className="col-span-6">
+      <section ref={wrapRef} className="pb-24 pt-16 px-6 max-w-[1280px] mx-auto">
+        <div className="grid grid-cols-2 gap-4 md:gap-8">
+          <div className="col-span-1">
             {left.map((id, i) => {
               const idx = i * 2
               return (
                 <figure
                   key={id}
-                  className="img-frame mb-4 md:mb-8 border border-line"
+                  className="rounded-xl overflow-hidden relative mb-4 md:mb-8 border border-border cursor-pointer group"
                   style={{ height: heights[i % heights.length] * scale }}
-                  data-cursor="view"
                   onClick={() => setLightbox(idx)}
                 >
-                  <img src={u(id, 1000)} alt={CAPTIONS[idx]} loading="lazy" />
-                  <figcaption className="u-label-sm absolute bottom-4 left-4 z-10 text-porcelain drop-shadow">
+                  <img src={u(id, 1000)} alt={CAPTIONS[idx]} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-m2n-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <figcaption className="text-[10px] font-bold text-white uppercase tracking-wider absolute bottom-4 left-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                     {CAPTIONS[idx]}
                   </figcaption>
                 </figure>
               )
             })}
           </div>
-          <div className="col-span-6 will-change-transform" ref={rightRef} style={{ marginTop: isMobile ? 0 : -60, marginBottom: isMobile ? -180 : -340 }}>
+          <div className="col-span-1 will-change-transform" ref={rightRef} style={{ marginTop: isMobile ? 0 : -60, marginBottom: isMobile ? -180 : -340 }}>
             {right.map((id, i) => {
               const idx = i * 2 + 1
               return (
                 <figure
                   key={id}
-                  className="img-frame mb-4 md:mb-8 border border-line"
+                  className="rounded-xl overflow-hidden relative mb-4 md:mb-8 border border-border cursor-pointer group"
                   style={{ height: (heights[(i + 3) % heights.length] + 40) * scale }}
-                  data-cursor="view"
                   onClick={() => setLightbox(idx)}
                 >
-                  <img src={u(id, 1000)} alt={CAPTIONS[idx]} loading="lazy" />
-                  <figcaption className="u-label-sm absolute bottom-4 left-4 z-10 text-porcelain drop-shadow">
+                  <img src={u(id, 1000)} alt={CAPTIONS[idx]} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-m2n-ink/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <figcaption className="text-[10px] font-bold text-white uppercase tracking-wider absolute bottom-4 left-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
                     {CAPTIONS[idx]}
                   </figcaption>
                 </figure>
@@ -146,7 +144,7 @@ export default function Gallery() {
       <AnimatePresence>
         {lightbox !== null && (
           <motion.div
-            className="fixed inset-0 z-[95] bg-porcelain/97 backdrop-blur-sm"
+            className="fixed inset-0 z-[95] bg-white/95 backdrop-blur-md"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -154,14 +152,14 @@ export default function Gallery() {
             <button
               onClick={() => setLightbox(null)}
               aria-label="Close gallery"
-              className="absolute right-6 top-6 z-10 flex h-12 w-12 items-center justify-center border border-ink/20 text-ink transition-colors hover:border-terracotta hover:text-terracotta"
+              className="absolute right-6 top-6 z-10 flex h-12 w-12 items-center justify-center rounded-full border border-border text-m2n-ink transition-colors hover:border-m2n-saffron hover:text-m2n-saffron bg-white shadow-sm"
             >
               <RiCloseLine size={22} />
             </button>
-            <p className="u-label-sm absolute left-6 top-9 z-10 text-muted">
+            <p className="text-[11px] font-bold text-text-3 uppercase tracking-widest absolute left-6 top-9 z-10">
               {String(lightbox + 1).padStart(2, '0')} / {IDS.length}
             </p>
-            <div className="relative flex h-full items-center justify-center p-6 md:p-20">
+            <div className="relative flex h-full items-center justify-center p-6 md:p-24">
               <Swiper
                 initialSlide={lightbox}
                 navigation
@@ -175,13 +173,13 @@ export default function Gallery() {
                     <img
                       src={u(id, 2000)}
                       alt={CAPTIONS[i]}
-                      className="max-h-full w-auto max-w-full object-contain"
+                      className="max-h-full w-auto max-w-full object-contain shadow-2xl rounded-sm"
                     />
                   </SwiperSlide>
                 ))}
               </Swiper>
             </div>
-            <p className="u-label-sm absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-muted">
+            <p className="text-[11px] font-bold text-m2n-ink uppercase tracking-widest absolute bottom-8 left-1/2 z-10 -translate-x-1/2 bg-white px-4 py-2 rounded shadow-sm border border-border">
               {CAPTIONS[lightbox]}
             </p>
           </motion.div>

@@ -47,71 +47,77 @@ export default function Login() {
 
   return (
     <PageTransition>
-      <div className="editorial-grid min-h-[80vh] items-center pt-40 pb-32">
-        <div className="col-span-12 md:col-span-6 md:col-start-4 lg:col-span-4 lg:col-start-5">
-          <p className="u-label text-terracotta text-center">Welcome Back</p>
-          <h1 className="t-hero mt-6 mb-8 text-center text-4xl">Login</h1>
+      <div className="min-h-screen flex items-center justify-center pt-20 pb-20 px-6">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-10">
+            <p className="text-[11px] font-bold text-m2n-saffron uppercase tracking-widest mb-3">Welcome Back</p>
+            <h1 className="font-display text-4xl text-m2n-ink font-bold">Login</h1>
+          </div>
           
-          {error && (
-            <div className="mb-6 p-4 border border-terracotta/40 bg-terracotta/5 text-terracotta text-sm">
-              {error}
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div>
-              <label className="u-label-sm text-muted">Email</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="field mt-1 w-full" 
-                required 
-              />
-            </div>
-            <div>
-              <div className="flex justify-between items-center mt-1 mb-1">
-                <label className="u-label-sm text-muted">Password</label>
-                <Link to="/forgot-password" className="text-xs text-ink underline">Forgot password?</Link>
+          <div className="bg-white border border-border rounded-xl p-8 shadow-sm">
+            {error && (
+              <div className="mb-6 p-4 rounded bg-m2n-rose/10 text-m2n-rose text-sm font-medium border border-m2n-rose/20">
+                {error}
               </div>
-              <div className="relative">
+            )}
+            
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div>
+                <label className="block text-[11px] font-bold text-text-3 uppercase tracking-wider mb-2">Email</label>
                 <input 
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="field w-full pr-10" 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="sfield w-full" 
                   required 
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                >
-                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                </button>
               </div>
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-[11px] font-bold text-text-3 uppercase tracking-wider">Password</label>
+                  <Link to="/forgot-password" className="text-[11px] font-bold text-m2n-saffron hover:underline">Forgot?</Link>
+                </div>
+                <div className="relative">
+                  <input 
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="sfield w-full pr-10" 
+                    required 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-text-3 hover:text-m2n-ink"
+                  >
+                    {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                  </button>
+                </div>
+              </div>
+              
+              <button type="submit" disabled={loading} className="btn btn-primary w-full justify-center mt-2 py-2.5">
+                {loading ? 'Authenticating...' : 'Sign In'}
+              </button>
+            </form>
+
+            <div className="flex items-center my-8">
+              <div className="flex-1 border-t border-border"></div>
+              <span className="px-4 text-[10px] font-bold text-text-3 uppercase tracking-widest">or</span>
+              <div className="flex-1 border-t border-border"></div>
             </div>
-            
-            <button type="submit" disabled={loading} className="btn-outline w-full justify-center mt-4">
-              {loading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
 
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-gray-200"></div>
-            <span className="px-4 text-sm text-gray-400 uppercase tracking-widest">or</span>
-            <div className="flex-1 border-t border-gray-200"></div>
-          </div>
-
-          <div className="flex justify-center">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setError('Google login was unsuccessful')}
-            />
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setError('Google login was unsuccessful')}
+                theme="outline"
+                shape="rectangular"
+              />
+            </div>
           </div>
           
-          <p className="mt-8 text-center text-sm text-muted">
-            Don't have an account? <Link to="/register" className="text-ink underline">Register</Link>
+          <p className="mt-8 text-center text-sm text-text-2">
+            Don't have an account? <Link to="/register" className="font-bold text-m2n-ink hover:text-m2n-saffron transition-colors">Register</Link>
           </p>
         </div>
       </div>

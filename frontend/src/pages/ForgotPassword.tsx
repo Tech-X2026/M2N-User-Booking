@@ -27,36 +27,40 @@ export default function ForgotPassword() {
 
   return (
     <PageTransition>
-      <div className="editorial-grid min-h-[80vh] items-center pt-40 pb-32">
-        <div className="col-span-12 md:col-span-6 md:col-start-4 lg:col-span-4 lg:col-start-5">
-          <p className="u-label text-terracotta text-center">Reset Access</p>
-          <h1 className="t-hero mt-6 mb-8 text-center text-4xl">Forgot Password</h1>
+      <div className="min-h-screen flex items-center justify-center pt-24 pb-24 px-6">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-10">
+            <p className="text-[11px] font-bold text-m2n-saffron uppercase tracking-widest mb-3">Reset Access</p>
+            <h1 className="font-display text-4xl text-m2n-ink font-bold">Forgot Password</h1>
+          </div>
           
-          {error && (
-            <div className="mb-6 p-4 border border-terracotta/40 bg-terracotta/5 text-terracotta text-sm">
-              {error}
-            </div>
-          )}
-          
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            <div>
-              <label className="u-label-sm text-muted">Enter your email</label>
-              <input 
-                type="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="field mt-1 w-full" 
-                required 
-              />
-            </div>
+          <div className="bg-white border border-border rounded-xl p-8 shadow-sm">
+            {error && (
+              <div className="mb-6 p-4 rounded bg-m2n-rose/10 text-m2n-rose text-sm font-medium border border-m2n-rose/20">
+                {error}
+              </div>
+            )}
             
-            <button type="submit" disabled={loading} className="btn-outline w-full justify-center mt-4">
-              {loading ? 'Sending OTP...' : 'Send OTP to Email'}
-            </button>
-          </form>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div>
+                <label className="block text-[11px] font-bold text-text-3 uppercase tracking-wider mb-2">Enter your email</label>
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="sfield w-full" 
+                  required 
+                />
+              </div>
+              
+              <button type="submit" disabled={loading} className="btn btn-primary w-full justify-center mt-2 py-2.5">
+                {loading ? 'Sending OTP...' : 'Send OTP to Email'}
+              </button>
+            </form>
+          </div>
           
-          <p className="mt-8 text-center text-sm text-muted">
-            Remembered your password? <Link to="/login" className="text-ink underline">Login</Link>
+          <p className="mt-8 text-center text-sm text-text-2">
+            Remembered your password? <Link to="/login" className="font-bold text-m2n-ink hover:text-m2n-saffron transition-colors">Login</Link>
           </p>
         </div>
       </div>

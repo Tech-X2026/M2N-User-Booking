@@ -1,434 +1,239 @@
-import { useLayoutEffect, useRef, useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
-import { motion } from 'framer-motion'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { RiArrowRightLine, RiArrowRightUpLine } from 'react-icons/ri'
-import ImageReveal from '../components/ImageReveal'
-import ParallaxImage from '../components/ParallaxImage'
+import { RiMapPinLine, RiStarFill } from 'react-icons/ri'
 import HeroBookingCard from '../components/HeroBookingCard'
-import { hotels } from '../data/hotels'
-import { rooms } from '../data/rooms'
-import { u, inr, EASE } from '../lib/lib'
-
-gsap.registerPlugin(ScrollTrigger)
-
-/* ---------- Count-up stat ---------- */
-function Stat({ value, suffix, label, infinity = false }: { value: number; suffix: string; label: string; infinity?: boolean }) {
-  const numRef = useRef<HTMLSpanElement>(null)
-  useLayoutEffect(() => {
-    if (infinity) return
-    const el = numRef.current
-    if (!el) return
-    const obj = { v: 0 }
-    const tween = gsap.to(obj, {
-      v: value,
-      duration: 2,
-      ease: 'power2.out',
-      scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-      onUpdate: () => {
-        el.textContent = String(Math.round(obj.v)).padStart(2, '0')
-      },
-    })
-    return () => {
-      tween.scrollTrigger?.kill()
-      tween.kill()
-    }
-  }, [value, infinity])
-
-  return (
-    <div>
-      <div className="font-display text-[clamp(4.5rem,9vw,9rem)] font-light leading-none text-ink">
-        {infinity ? (
-          <span className="italic">∞</span>
-        ) : (
-          <>
-            <span ref={numRef}>00</span>
-            <span className="text-terracotta">{suffix}</span>
-          </>
-        )}
-      </div>
-      <p className="u-label mt-5 text-muted">{label}</p>
-    </div>
-  )
-}
+import { u, inr } from '../lib/lib'
 
 export default function Home() {
-  const heroRef = useRef<HTMLElement>(null)
-  const marqueeRef = useRef<HTMLDivElement>(null)
-  const philRef = useRef<HTMLElement>(null)
-
-  const [hotelsCount, setHotelsCount] = useState(0)
-  const [roomsCount, setRoomsCount] = useState(0)
+  const [dbHotels, setDbHotels] = useState<any[]>([])
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:5000/api'}/public/hotels`)
       .then(res => {
-        if (res.data && Array.isArray(res.data)) setHotelsCount(res.data.length)
-      }).catch(err => console.error(err))
-
-    axios.get(`${import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:5000/api'}/public/categories`)
-      .then(res => {
         if (res.data && Array.isArray(res.data)) {
-          const total = res.data.reduce((sum: number, cat: any) => sum + (cat.numberOfRooms || 0), 0);
-          setRoomsCount(total);
+          setDbHotels(res.data.slice(0, 4))
         }
       }).catch(err => console.error(err))
   }, [])
 
-  /* Scrubbed marquee */
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.to(marqueeRef.current, {
-        xPercent: -28,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: marqueeRef.current,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-        },
-      })
-    })
-    return () => ctx.revert()
-  }, [])
-
-  /* Pinned philosophy */
-  useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: philRef.current,
-        start: 'top top+=90',
-        end: '+=38%',
-        pin: true,
-        pinSpacing: true,
-      })
-    }, philRef)
-    return () => ctx.revert()
-  }, [])
-
   return (
-    <>
+    <div className="pb-24">
       <Helmet>
         <title>M2N Group of Hotels — Where Architecture Breathes</title>
         <meta name="description" content="Five addresses across India — Jaipur, Goa, Delhi, Udaipur, Shimla. Heritage palaces, coastal houses and mountain lodges rendered with editorial restraint." />
       </Helmet>
 
-      {/* ============ HERO ============ */}
-      <section ref={heroRef} className="relative min-h-[100svh] bg-ink flex flex-col justify-between">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <motion.video
-            className="absolute inset-0 h-full w-full object-cover"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster="https://images.pexels.com/videos/37797114/pexels-photo-37797114.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=1080&w=1920"
-            initial={{ scale: 1.08, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 1.8, ease: EASE }}
-          >
-            <source
-              src="https://videos.pexels.com/video-files/37797114/16032427_3840_2160_60fps.mp4"
-              type="video/mp4"
-            />
-          </motion.video>
-          <div className="absolute inset-0 bg-gradient-to-b from-porcelain/65 via-ink/5 to-ink/65" />
-        </div>
-
-        <div className="editorial-grid relative flex-1">
-          <div className="col-span-12 flex items-start justify-between pt-28">
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="u-label text-muted"
-            >
-              Group of Hotels — India
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.7 }}
-              className="u-label hidden text-muted sm:block"
-            >
-              Est. 2012
-            </motion.p>
-          </div>
-
-          {/* Quiet wordmark lets the palace remain the dominant visual. */}
-          <div className="absolute left-0 top-[35%] md:top-[43%] w-full -translate-y-1/2 text-center">
-            <h1 className="t-hero whitespace-nowrap text-[clamp(4.5rem,9vw,8rem)] leading-[0.8] tracking-[-0.03em] text-porcelain">
-              {['M', '2', 'N'].map((ch, i) => (
-                <span key={i} className="inline-block overflow-hidden align-top">
-                  <motion.span
-                    className="inline-block"
-                    initial={{ y: '110%' }}
-                    animate={{ y: 0 }}
-                    transition={{ duration: 1.1, ease: EASE, delay: 0.2 + i * 0.12 }}
-                  >
-                    {ch}
-                  </motion.span>
-                </span>
-              ))}
-            </h1>
-            <motion.p
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 1, ease: EASE, delay: 0.9 }}
-              className="t-quote mx-auto mt-8 max-w-[560px] px-6 text-[clamp(1.4rem,2.6vw,2.4rem)] text-porcelain"
-            >
-              Where architecture breathes <span className="text-porcelain/75">and time stands still.</span>
-            </motion.p>
-          </div>
-
-          {/* Bottom row */}
-          <div className="col-span-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 md:gap-10 pb-10 md:pb-36 mt-[45vh] md:mt-0">
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 1.05 }}
-              className="max-w-[340px] text-[0.95rem] font-light leading-[1.8] text-porcelain/80"
-            >
-              Five addresses across India — a rose-stone palace, a coastal house, a Lutyens mansion,
-              a lake pavilion, a cedar lodge. One discipline: restraint.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, delay: 1.15 }}
-            >
-              <Link to="/hotels" className="u-label link-line text-porcelain">
-                Explore Hotels <RiArrowRightLine size={16} className="text-porcelain" />
-              </Link>
-            </motion.div>
-          </div>
-        </div>
-
-        {/* Hero Booking Card positioned naturally on mobile, absolute bottom on desktop */}
-        <div className="relative z-20 px-4 pb-6 pt-10 md:pt-0 md:absolute md:bottom-6 md:left-0 md:right-0 md:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-          >
-            <HeroBookingCard />
-          </motion.div>
+      {/* COMPACT HERO */}
+      <section className="relative h-[65vh] min-h-[500px] bg-m2n-charcoal flex flex-col justify-between pt-[120px] px-6">
+        <div 
+          className="absolute inset-0 opacity-40 bg-cover bg-center" 
+          style={{ backgroundImage: `url(${u('photo-1542314831-c6a4d27ce668', 1920)})` }} 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-m2n-ink/50 via-transparent to-m2n-charcoal/90" />
+        
+        <div className="relative z-10 max-w-[1280px] mx-auto w-full flex-1 flex flex-col justify-center pb-[100px]">
+          <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-4 uppercase drop-shadow-sm">A Return to Restraint</p>
+          <h1 className="font-display text-[clamp(2.5rem,6vw,4.5rem)] text-white font-bold leading-[1.05] max-w-[700px] drop-shadow-md">
+            Luxury defined by <br/><span className="text-[#fbbf24] italic font-medium">proportion</span> & light.
+          </h1>
         </div>
       </section>
 
-      {/* ============ SCRUBBED MARQUEE ============ */}
-      <section className="overflow-hidden border-y border-line py-8 md:py-10">
-        <div ref={marqueeRef} className="flex w-max whitespace-nowrap will-change-transform">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <span key={i} className="t-section flex items-center text-[clamp(1.6rem,3.4vw,3rem)] text-ink">
-              <span className="mx-8 uppercase tracking-widest font-light">M2N Group Of Hotels</span>
-              <span className="h-1.5 w-1.5 rounded-full bg-terracotta opacity-50" />
-            </span>
-          ))}
-        </div>
-      </section>
+      {/* SEARCH WIDGET (overlapping hero) */}
+      <div className="relative z-20 px-6 -mt-[48px]">
+        <HeroBookingCard />
+      </div>
 
-      {/* ============ PHILOSOPHY (PINNED) ============ */}
-      <section ref={philRef} className="relative pt-32 md:pt-44 pb-16 md:pb-24">
-        <div className="editorial-grid items-center">
-          <div className="col-span-12 md:col-span-6">
-            <p className="u-label text-terracotta">01 — Philosophy</p>
-            <blockquote className="t-quote mt-10 text-[clamp(1.9rem,4vw,3.6rem)] text-ink">
-              &ldquo;Luxury is not opulence. It is <em className="text-terracotta">proportion</em>, light,
-              and the discipline of <em className="text-sage">restraint</em>.&rdquo;
-            </blockquote>
-            <p className="mt-12 max-w-[460px] text-[0.95rem] font-light leading-[1.85] text-muted">
-              Every M2N house begins with subtraction. We remove until only the essential remains —
-              then we proportion what is left with the patience of a manuscript illuminator. Nothing
-              in our houses shouts. Everything holds.
-            </p>
-            <p className="u-label-sm mt-10 text-warm">— The M2N Principle, No. 001</p>
+      {/* QUICK FILTERS */}
+      <div className="quick-filters">
+        <button className="qchip active">All Destinations</button>
+        <button className="qchip">Heritage Palaces</button>
+        <button className="qchip">Mountain Lodges</button>
+        <button className="qchip">City Hotels</button>
+        <button className="qchip">Beach Retreats</button>
+      </div>
+
+      {/* TRUST STRIP */}
+      <section className="max-w-[1280px] mx-auto px-6 mt-14 mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 border-y border-border">
+          <div className="flex flex-col gap-2">
+            <span className="text-xl">🏛️</span>
+            <h6 className="font-bold text-[12px] text-text-1 uppercase tracking-wide">Heritage Certified</h6>
+            <p className="text-[11px] text-text-3">Authentic restored palaces</p>
           </div>
-          <div className="col-span-12 mt-16 md:col-span-5 md:col-start-8 md:mt-0">
-            <ParallaxImage
-              src={u('photo-1564501049412-61c2a3083791', 1400)}
-              speed={0.55}
-              className="aspect-[3/4]"
-              viewCursor
-            />
-            <div className="mt-4 flex items-center justify-between">
-              <p className="u-label-sm text-muted">Courtyard of the First House</p>
-              <p className="u-label-sm text-warm">Jaipur, 0630 hrs</p>
-            </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-xl">✨</span>
+            <h6 className="font-bold text-[12px] text-text-1 uppercase tracking-wide">Bespoke Service</h6>
+            <p className="text-[11px] text-text-3">24/7 personal concierge</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-xl">🌿</span>
+            <h6 className="font-bold text-[12px] text-text-1 uppercase tracking-wide">Sustainable</h6>
+            <p className="text-[11px] text-text-3">Zero single-use plastics</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <span className="text-xl">🏆</span>
+            <h6 className="font-bold text-[12px] text-text-1 uppercase tracking-wide">Award Winning</h6>
+            <p className="text-[11px] text-text-3">Condé Nast Gold List 2025</p>
           </div>
         </div>
       </section>
 
-      {/* ============ SPACES — STACKING ANIMATION ============ */}
-      <section className="bg-cream/60 pt-16 md:pt-24 pb-12 relative border-t border-line">
-        <div className="editorial-grid mb-16 md:mb-24">
-          <div className="col-span-12 md:col-span-6">
-            <p className="u-label text-terracotta">02 — Spaces</p>
-            <h2 className="t-hero mt-8 text-[clamp(4rem,10vw,8.5rem)]">SPACES</h2>
-            <p className="mt-8 max-w-[380px] text-[0.95rem] font-light leading-[1.85] text-muted">
-              Sixty keys across five houses, each proportioned to its landscape. Scroll to explore the rooms.
-            </p>
+      {/* FEATURED PROPERTIES */}
+      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+        <div className="flex justify-between items-end mb-8">
+          <div>
+            <h2 className="section-title">Featured Properties</h2>
+            <p className="section-sub">Addresses proportioned to their landscape.</p>
           </div>
+          <Link to="/hotels" className="btn btn-ghost hidden sm:block">View All</Link>
         </div>
 
-        <div className="px-6 md:px-12 pb-12 md:pb-16 relative max-w-7xl mx-auto flex flex-col gap-[15vh]">
-          {rooms.map((r, i) => (
-            <div 
-              key={r.id} 
-              className="sticky flex flex-col md:flex-row items-center gap-8 md:gap-16 bg-white border border-line p-6 md:p-12 shadow-md rounded-xl w-full mx-auto"
-              style={{
-                top: `calc(10vh + ${i * 40}px)`,
-                zIndex: i
-              }}
-            >
-              <div className="img-frame relative h-[40vh] md:h-[65vh] w-full md:w-3/5 shrink-0 rounded-lg overflow-hidden" data-cursor="view">
-                <img src={r.image} alt={r.name} loading="lazy" className="object-cover w-full h-full" />
-                <span className="absolute right-5 top-4 font-display text-[4rem] md:text-[6rem] font-light leading-none text-white drop-shadow-md">
-                  0{i + 1}
-                </span>
-              </div>
-              <div className="w-full md:w-2/5 md:pr-8">
-                <p className="u-label-sm text-sage">{hotels.find((h) => h.id === r.hotels[0])?.city} · {r.size} SQ.FT</p>
-                <h3 className="t-section mt-5 text-[clamp(2rem,3.5vw,3rem)] leading-tight">{r.name}</h3>
-                <p className="mt-6 text-[0.92rem] font-light leading-[1.8] text-muted">{r.desc}</p>
-                <p className="u-label mt-8 text-terracotta">From {inr(r.price)} / night</p>
-                <Link to="/rooms" className="u-label link-line mt-6 text-ink">
-                  View Room <RiArrowRightLine size={15} className="text-terracotta" />
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ============ MEETINGS, EVENTS & WEDDINGS ============ */}
-      <section className="relative overflow-visible pt-16 md:pt-20 pb-20 md:pb-24 bg-cream/30">
-        <div className="editorial-grid">
-          <div className="col-span-12 text-center mb-16 md:mb-24">
-            <p className="u-label text-terracotta">03 — Gatherings</p>
-            <h2 className="t-section mt-6 text-[clamp(2.4rem,4.5vw,4.2rem)] max-w-4xl mx-auto">
-              Spaces designed for <em className="font-normal italic">moments,</em>
-              <br />
-              meetings, and milestones.
-            </h2>
-          </div>
-
-          <div className="col-span-12 grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-            {/* Meetings */}
-            <Link to="/events" className="group block cursor-pointer">
-              <div className="img-frame aspect-[4/5] rounded-sm" data-cursor="view">
-                <img src={u('photo-1517457373958-b7bdd4587205', 800)} alt="Meetings" loading="lazy" />
-              </div>
-              <div className="mt-6 flex justify-between items-center">
-                <h3 className="t-section text-2xl group-hover:text-terracotta transition-colors">Meetings</h3>
-                <RiArrowRightLine className="text-terracotta opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 duration-300" />
-              </div>
-              <p className="mt-3 text-[0.95rem] text-muted font-light leading-[1.8]">
-                Boardrooms and conference spaces proportioned for focus, strategy, and vision.
-              </p>
-            </Link>
-
-            {/* Events */}
-            <Link to="/events" className="group block cursor-pointer md:mt-16">
-              <div className="img-frame aspect-[4/5] rounded-sm" data-cursor="view">
-                <img src={u('photo-1511795409834-ef04bbd61622', 800)} alt="Events" loading="lazy" />
-              </div>
-              <div className="mt-6 flex justify-between items-center">
-                <h3 className="t-section text-2xl group-hover:text-terracotta transition-colors">Events</h3>
-                <RiArrowRightLine className="text-terracotta opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 duration-300" />
-              </div>
-              <p className="mt-3 text-[0.95rem] text-muted font-light leading-[1.8]">
-                Gala dinners, private parties, and grand celebrations in heritage settings.
-              </p>
-            </Link>
-
-            {/* Weddings */}
-            <Link to="/weddings" className="group block cursor-pointer md:mt-32">
-              <div className="img-frame aspect-[4/5] rounded-sm" data-cursor="view">
-                <img src={u('photo-1519225421980-715cb0215aed', 800)} alt="Weddings" loading="lazy" />
-              </div>
-              <div className="mt-6 flex justify-between items-center">
-                <h3 className="t-section text-2xl group-hover:text-terracotta transition-colors">Weddings</h3>
-                <RiArrowRightLine className="text-terracotta opacity-0 group-hover:opacity-100 transition-all -translate-x-4 group-hover:translate-x-0 duration-300" />
-              </div>
-              <p className="mt-3 text-[0.95rem] text-muted font-light leading-[1.8]">
-                Royal processions, intimate ceremonies, and timeless memories crafted with restraint.
-              </p>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ EXPERIENCES BENTO ============ */}
-      <section className="border-t border-line py-20 md:py-24">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta md:col-span-3">04 — Experiences</p>
-          <h2 className="t-hero col-span-12 -mt-2 whitespace-nowrap text-[clamp(3rem,9vw,7.5rem)] leading-[0.95] md:col-span-11">
-            EXPE<em className="font-normal italic">riences</em>
-          </h2>
-
-          <div className="col-span-12 mt-16 grid grid-cols-1 gap-6 md:grid-cols-4 md:auto-rows-[230px]">
-            {/* Tile 1 — tall */}
-            <Link to="/experiences" className="group img-frame img-zoom-slow relative border border-line md:col-span-2 md:row-span-2" data-cursor="view">
-              <img src={u('photo-1598091383021-15ddea10925d', 1400)} alt="Heritage walks" loading="lazy" />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-ink/40 to-transparent p-7">
-                <div>
-                  <p className="u-label-sm text-porcelain/80">Jaipur · 3 Hours</p>
-                  <p className="t-section mt-2 text-3xl text-porcelain">Heritage Walks</p>
+        <div className="props-grid">
+          {dbHotels.length > 0 ? (
+            dbHotels.map(h => (
+              <Link to={`/hotels/${h._id}`} key={h._id} className="prop-card group">
+                <div className="prop-img" style={{ backgroundImage: `url(${h.images?.[0] || u('photo-1564501049412-61c2a3083791', 600)})` }}>
+                  <span className="prop-tag gold">FEATURED</span>
+                  <button className="prop-fav text-text-3 hover:text-m2n-rose transition-colors">♡</button>
                 </div>
-                <RiArrowRightUpLine className="text-porcelain" size={22} />
+                <div className="prop-body">
+                  <div className="prop-top">
+                    <h3 className="prop-name truncate pr-2">{h.name}</h3>
+                    <div className="prop-rating"><RiStarFill className="text-[#fbbf24] text-[10px]" /><span className="rating-pill">4.9</span></div>
+                  </div>
+                  <p className="prop-loc"><RiMapPinLine size={12}/> {h.city || 'India'}</p>
+                  <div className="prop-amen">
+                    <span>Pool</span>
+                    <span>Spa</span>
+                    <span>Fine Dining</span>
+                  </div>
+                  <div className="prop-bottom">
+                    <span className="text-[11px] font-bold text-m2n-saffron">Explore House ➔</span>
+                    <div className="prop-price-block">
+                      <div className="per">From</div>
+                      <div className="now">{inr(9500)}</div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))
+          ) : (
+            // Fallback static cards if DB is empty
+            [1,2,3,4].map(i => (
+              <div key={i} className="prop-card border-border">
+                <div className="prop-img bg-border animate-pulse"></div>
+                <div className="prop-body">
+                  <div className="h-4 bg-border rounded w-3/4 mb-3 animate-pulse"></div>
+                  <div className="h-3 bg-border rounded w-1/2 mb-4 animate-pulse"></div>
+                  <div className="h-10 bg-border rounded w-full animate-pulse"></div>
+                </div>
               </div>
-            </Link>
-            {/* Tile 2 — wide */}
-            <Link to="/experiences" className="group img-frame img-zoom-slow relative border border-line md:col-span-2" data-cursor="view">
-              <img src={u('photo-1556910103-1c02745aae4d', 1400)} alt="Culinary journeys" loading="lazy" />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between bg-gradient-to-t from-ink/40 to-transparent p-6">
-                <p className="t-section text-2xl text-porcelain">Culinary Journeys</p>
-                <RiArrowRightUpLine className="text-porcelain" size={20} />
-              </div>
-            </Link>
-            {/* Tile 3 */}
-            <Link to="/spa" className="group img-frame img-zoom-slow relative border border-line" data-cursor="view">
-              <img src={u('photo-1544161515-4ab6ce6db874', 1200)} alt="Spa rituals" loading="lazy" />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/40 to-transparent p-6">
-                <p className="t-section text-2xl text-porcelain">Spa Rituals</p>
-              </div>
-            </Link>
-            {/* Tile 4 */}
-            <Link to="/dining" className="group img-frame img-zoom-slow relative border border-line" data-cursor="view">
-              <img src={u('photo-1414235077428-338989a2e8c0', 1200)} alt="Royal dining" loading="lazy" />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/40 to-transparent p-6">
-                <p className="t-section text-2xl text-porcelain">Royal Dining</p>
-              </div>
-            </Link>
-          </div>
+            ))
+          )}
+        </div>
+        <Link to="/hotels" className="btn btn-ghost block sm:hidden w-full mt-6 text-center">View All Properties</Link>
+      </section>
+
+      {/* TODAY's FLASH DEALS */}
+      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+        <h2 className="section-title mb-6">Exclusive Offers</h2>
+        <div className="deals-row">
+          <Link to="/offers" className="deal-card group">
+            <div className="deal-img" style={{ backgroundImage: `url(${u('photo-1618773928120-47db60d4b1a4', 400)})` }}>
+              <span className="deal-badge">-25%</span>
+            </div>
+            <div className="deal-body">
+              <h4 className="deal-name">Early Bird Summer</h4>
+              <p className="deal-loc">All Properties</p>
+              <div className="deal-meta"><span>Book 60 Days Adv</span><span>Min 2 Nights</span></div>
+              <div className="deal-price"><span className="text-[12px] text-text-3 line-through">₹12,000</span><span className="text-[16px] font-bold text-m2n-ink">₹9,000</span></div>
+            </div>
+          </Link>
+          
+          <Link to="/offers" className="deal-card group">
+            <div className="deal-img" style={{ backgroundImage: `url(${u('photo-1544161515-4ab6ce6db874', 400)})` }}>
+              <span className="deal-badge">COMPLIMENTARY</span>
+            </div>
+            <div className="deal-body">
+              <h4 className="deal-name">Spa Rejuvenation</h4>
+              <p className="deal-loc">Jaipur & Udaipur</p>
+              <div className="deal-meta"><span>Couples</span><span>60 Min Therapy</span></div>
+              <div className="deal-price"><span className="text-[12px] text-m2n-emerald font-bold">Included with Suites</span></div>
+            </div>
+          </Link>
+          
+          <Link to="/offers" className="deal-card group">
+            <div className="deal-img" style={{ backgroundImage: `url(${u('photo-1556910103-1c02745aae4d', 400)})` }}>
+              <span className="deal-badge">STAY 3 PAY 2</span>
+            </div>
+            <div className="deal-body">
+              <h4 className="deal-name">Long Weekend</h4>
+              <p className="deal-loc">Shimla Lodge</p>
+              <div className="deal-meta"><span>Valid till Oct</span><span>Breakfast Incl.</span></div>
+              <div className="deal-price"><span className="text-[12px] text-text-3 line-through">₹24,000</span><span className="text-[16px] font-bold text-m2n-ink">₹16,000</span></div>
+            </div>
+          </Link>
         </div>
       </section>
 
-      {/* ============ NUMBERS ============ */}
-      <section className="border-t border-line bg-cream py-16 md:py-24">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta md:col-span-3">05 — In Numbers</p>
-          <div className="col-span-12 mt-10 grid grid-cols-2 gap-y-16 lg:grid-cols-4">
-            <Stat value={hotelsCount} suffix="" label="Hotels" />
-            <Stat value={roomsCount} suffix="" label="Rooms & Suites" />
-            <Stat value={5} suffix="" label="Years of Craft" />
-            <Stat value={0} suffix="" label="Stories Told" infinity />
+      {/* CURATED EXPERIENCES */}
+      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+        <div className="flex justify-between items-end mb-8">
+          <div>
+            <h2 className="section-title">Curated Experiences</h2>
+            <p className="section-sub">Moments crafted with absolute precision.</p>
           </div>
-          <div className="col-span-12 mt-24 flex flex-col items-start justify-between gap-10 border-t border-line pt-14 md:flex-row md:items-end">
-            <h3 className="t-quote max-w-[640px] text-[clamp(1.8rem,3.6vw,3.2rem)]">
-              The numbers end. <em className="text-terracotta">The stories don&rsquo;t.</em>
-            </h3>
-            <Link to="/about" className="btn-outline">
-              Our Story <RiArrowRightLine size={15} />
-            </Link>
-          </div>
+          <Link to="/experiences" className="btn btn-ghost hidden sm:block">Explore All</Link>
+        </div>
+
+        <div className="exp-row">
+          <Link to="/dining" className="exp-card">
+            <div className="img" style={{ backgroundImage: `url(${u('photo-1414235077428-338989a2e8c0', 600)})` }}></div>
+            <div className="ov"></div>
+            <div className="label"><small>Gastronomy</small><strong>Royal Dining</strong></div>
+          </Link>
+          <Link to="/spa" className="exp-card">
+            <div className="img" style={{ backgroundImage: `url(${u('photo-1540555700478-4be289fbecef', 600)})` }}></div>
+            <div className="ov"></div>
+            <div className="label"><small>Wellness</small><strong>Thermal Spa</strong></div>
+          </Link>
+          <Link to="/experiences" className="exp-card">
+            <div className="img" style={{ backgroundImage: `url(${u('photo-1598091383021-15ddea10925d', 600)})` }}></div>
+            <div className="ov"></div>
+            <div className="label"><small>Culture</small><strong>Heritage Walks</strong></div>
+          </Link>
+          <Link to="/events" className="exp-card">
+            <div className="img" style={{ backgroundImage: `url(${u('photo-1511795409834-ef04bbd61622', 600)})` }}></div>
+            <div className="ov"></div>
+            <div className="label"><small>Celebrations</small><strong>Private Events</strong></div>
+          </Link>
         </div>
       </section>
-    </>
+
+      {/* LOYALTY PROMO */}
+      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+        <div className="bg-m2n-ink rounded-2xl overflow-hidden flex flex-col md:flex-row items-center">
+          <div className="p-10 md:p-14 flex-1 text-center md:text-left">
+            <h3 className="font-display text-3xl md:text-4xl text-white font-bold mb-4">M2N <span className="text-m2n-saffron italic font-medium">Reserve</span></h3>
+            <p className="text-white/70 text-sm mb-8 max-w-md mx-auto md:mx-0 leading-relaxed">
+              Join our exclusive loyalty program. Earn points on every stay, unlock complimentary upgrades, and access member-only rates.
+            </p>
+            <Link to="/register" className="btn btn-saffron px-8 py-3 text-sm">Join the Reserve</Link>
+          </div>
+          <div className="w-full md:w-5/12 h-[300px] md:h-auto self-stretch bg-cover bg-center" style={{ backgroundImage: `url(${u('photo-1578683010236-d716f9a3f461', 800)})` }}></div>
+        </div>
+      </section>
+
+      {/* QUOTE */}
+      <section className="max-w-[800px] mx-auto px-6 text-center pb-12">
+        <p className="text-[28px] md:text-[34px] font-display text-m2n-ink font-bold leading-tight">
+          "Luxury is not opulence. It is <span className="italic font-medium text-m2n-saffron">proportion</span>, light, and the discipline of restraint."
+        </p>
+        <p className="text-[10px] tracking-[2px] text-text-3 uppercase mt-8 font-bold">The M2N Principle, No. 001</p>
+      </section>
+    </div>
   )
 }

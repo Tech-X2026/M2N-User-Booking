@@ -1,1 +1,4 @@
 *.zip
+.env
+node_modules
+option2.html

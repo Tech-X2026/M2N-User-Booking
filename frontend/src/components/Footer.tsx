@@ -1,135 +1,114 @@
 import { Link } from 'react-router-dom'
-import {
-  RiInstagramLine,
-  RiTwitterLine,
-  RiLinkedinLine,
-  RiYoutubeLine,
-} from 'react-icons/ri'
 
-const EXPERIENCES = [
-  { label: 'Our Hotels', to: '/hotels' },
+const HOTELS = [
+  { label: 'M2N Zaarang Inn · Jaipur', to: '/hotels/1' },
+  { label: 'M2N Aurelia Grand · Jaipur', to: '/hotels/2' },
+  { label: 'M2N Shaurya Inn', to: '/hotels/3' },
+  { label: 'M2N Udaipur · Lake Pavilion', to: '/hotels/4' },
+  { label: 'M2N Shimla · Cedar Lodge', to: '/hotels/5' },
+  { label: 'M2N Delhi · Lutyens', to: '/hotels/6' },
+]
+
+const EXPLORE = [
   { label: 'Rooms & Suites', to: '/rooms' },
   { label: 'Dining', to: '/dining' },
   { label: 'Spa & Wellness', to: '/spa' },
+  { label: 'Experiences', to: '/experiences' },
+  { label: 'Weddings & Events', to: '/events' },
 ]
 
-const EVENTS = [
-  { label: 'Meetings, Events & Weddings', to: '/events' },
-  { label: 'Special Offers', to: '/offers' },
-  { label: 'Gallery', to: '/gallery' },
+const OFFERS = [
+  { label: 'Early-Bird 25% Off', to: '/offers' },
+  { label: 'Loyalty ×2 Points', to: '/offers' },
+  { label: 'Stay Longer Save More', to: '/offers' },
+  { label: 'Corporate & MICE', to: '/offers' },
+  { label: 'Gift Cards', to: '/offers' },
 ]
 
-const ABOUT = [
-  { label: 'Our Story', to: '/about' },
-  { label: 'Careers', to: '/careers' },
-  { label: 'Contact Us', to: '/contact' },
-  { label: 'Journal', to: '/blog' },
-]
-
-const SOCIALS = [
-  { label: 'Instagram', icon: RiInstagramLine },
-  { label: 'Twitter', icon: RiTwitterLine },
-  { label: 'LinkedIn', icon: RiLinkedinLine },
-  { label: 'YouTube', icon: RiYoutubeLine },
+const SUPPORT = [
+  { label: 'My Bookings', to: '/my-bookings' },
+  { label: 'Modify / Cancel', to: '/contact' },
+  { label: 'Contact Concierge', to: '/contact' },
+  { label: '+91 96587 100', to: 'tel:+9196587100' },
+  { label: 'booking@m2nhotels.com', to: 'mailto:booking@m2nhotels.com' },
 ]
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden bg-[#111] text-[#b3b3b3]">
-      <div className="editorial-grid pt-24 md:pt-32 pb-32">
+    <footer className="bg-m2n-ink text-white pt-[50px] pb-6 px-6">
+      <div className="max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-8">
         
-        {/* Left Column */}
-        <div className="col-span-12 lg:col-span-4 pr-12 mb-12 lg:mb-0">
-          <Link to="/" className="block mb-6">
-            <img src="/Logo/M2N_logo.png" alt="M2N Logo" className="h-16 md:h-20 w-auto" />
+        {/* Brand Column (takes up 2 columns on lg) */}
+        <div className="lg:col-span-2">
+          <Link to="/" className="inline-block">
+            <img src="/Logo/M2N_logo2.png" alt="M2N Logo" className="h-10 w-auto" />
           </Link>
-          <p className="text-[0.95rem] font-light leading-relaxed mb-8 max-w-[320px]">
-            A luxury hospitality group across India.<br />
-            Where every heartbeat matters.
+          <p className="text-white/60 text-[13px] mt-4 leading-[1.6] max-w-[280px]">
+            Where architecture breathes and time stands still. Five addresses across India, one discipline of restraint. Established 2012.
           </p>
-          <div className="text-[0.95rem] font-light mb-8 flex flex-col gap-1">
-            <p>Reception: +9196587100</p>
-            <p>Reservations: +9196587100</p>
-            <p>Email: m2nhotelsbookinglko@gmail.com</p>
-          </div>
-
         </div>
 
-        {/* Middle Column 1: Experiences */}
-        <div className="col-span-6 sm:col-span-4 lg:col-span-2 mb-8 lg:mb-0">
-          <p className="text-[0.7rem] font-bold tracking-[0.15em] uppercase text-white mb-8">Experiences</p>
-          <ul className="flex flex-col gap-4 text-[0.95rem] font-light">
-            {EXPERIENCES.map((e) => (
-              <li key={e.to}>
-                <Link to={e.to} className="hover:text-white transition-colors duration-300">{e.label}</Link>
+        {/* Hotels Column */}
+        <div>
+          <h5 className="text-[13px] font-bold mb-3.5 tracking-[0.5px] text-[#fbbf24] uppercase">Our Hotels</h5>
+          <ul className="flex flex-col gap-2.5">
+            {HOTELS.map((item, i) => (
+              <li key={i}>
+                <Link to={item.to} className="text-white/70 hover:text-white text-[12px] transition-colors">{item.label}</Link>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Middle Column 2: Events */}
-        <div className="col-span-6 sm:col-span-4 lg:col-span-3 lg:pl-8 mb-8 lg:mb-0">
-          <p className="text-[0.7rem] font-bold tracking-[0.15em] uppercase text-white mb-8">Events</p>
-          <ul className="flex flex-col gap-4 text-[0.95rem] font-light">
-            {EVENTS.map((e) => (
-              <li key={e.to}>
-                <Link to={e.to} className="hover:text-white transition-colors duration-300">{e.label}</Link>
+        {/* Explore Column */}
+        <div>
+          <h5 className="text-[13px] font-bold mb-3.5 tracking-[0.5px] text-[#fbbf24] uppercase">Explore</h5>
+          <ul className="flex flex-col gap-2.5">
+            {EXPLORE.map((item, i) => (
+              <li key={i}>
+                <Link to={item.to} className="text-white/70 hover:text-white text-[12px] transition-colors">{item.label}</Link>
               </li>
             ))}
           </ul>
         </div>
 
-        {/* Right Column: About & Socials */}
-        <div className="col-span-12 sm:col-span-4 lg:col-span-3 mb-8 lg:mb-0">
-          <p className="text-[0.7rem] font-bold tracking-[0.15em] uppercase text-white mb-8">About</p>
-          <ul className="flex flex-col gap-4 text-[0.95rem] font-light mb-8">
-            {ABOUT.map((e) => (
-              <li key={e.to}>
-                <Link to={e.to} className="hover:text-white transition-colors duration-300">{e.label}</Link>
+        {/* Offers Column */}
+        <div>
+          <h5 className="text-[13px] font-bold mb-3.5 tracking-[0.5px] text-[#fbbf24] uppercase">Offers</h5>
+          <ul className="flex flex-col gap-2.5">
+            {OFFERS.map((item, i) => (
+              <li key={i}>
+                <Link to={item.to} className="text-white/70 hover:text-white text-[12px] transition-colors">{item.label}</Link>
               </li>
             ))}
           </ul>
-          
-          <div className="flex gap-5">
-            {SOCIALS.map((s) => (
-              <a
-                key={s.label}
-                href="#"
-                aria-label={s.label}
-                className="text-[#b3b3b3] hover:text-white transition-colors duration-300"
-              >
-                <s.icon size={20} />
-              </a>
+        </div>
+
+        {/* Support Column */}
+        <div>
+          <h5 className="text-[13px] font-bold mb-3.5 tracking-[0.5px] text-[#fbbf24] uppercase">Support</h5>
+          <ul className="flex flex-col gap-2.5">
+            {SUPPORT.map((item, i) => (
+              <li key={i}>
+                {item.to.startsWith('tel') || item.to.startsWith('mailto') ? (
+                  <a href={item.to} className="text-white/70 hover:text-white text-[12px] transition-colors">{item.label}</a>
+                ) : (
+                  <Link to={item.to} className="text-white/70 hover:text-white text-[12px] transition-colors">{item.label}</Link>
+                )}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
       </div>
 
-      {/* Background Watermark */}
-      <div className="absolute bottom-[8rem] md:bottom-[4.5rem] left-0 w-full overflow-hidden pointer-events-none flex justify-center px-4 md:px-[clamp(1.25rem,4vw,4.5rem)]">
-        <h2
-          aria-hidden
-          className="font-display text-[7.5vw] md:text-[8vw] xl:text-[6.5rem] 2xl:text-[7.5rem] font-bold leading-none text-white opacity-[0.05] select-none whitespace-nowrap tracking-normal w-full max-w-[1560px] text-center"
-        >
-          M2N GROUP OF HOTELS
-        </h2>
-      </div>
-
-      {/* Bottom bar */}
-      <div className="border-t border-white/5 relative z-10">
-        <div className="editorial-grid items-center py-5">
-          <p className="text-[0.8rem] font-light col-span-12 md:col-span-6 opacity-70">
-            © 2026 M2N GROUP OF HOTELS · Lucknow, Uttar Pradesh
-          </p>
-          <div className="col-span-12 flex gap-8 md:col-span-6 md:justify-end text-[0.8rem] font-light opacity-70">
-            <Link to="/privacy" className="hover:text-white hover:opacity-100 transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/terms" className="hover:text-white hover:opacity-100 transition-colors">
-              Terms & Conditions
-            </Link>
-          </div>
+      <div className="max-w-[1280px] mx-auto mt-9 pt-[18px] border-t border-white/10 flex flex-col sm:flex-row justify-between gap-4 text-[11px] text-white/50">
+        <span>© 2026 M2N Group of Hotels · India · All rights reserved</span>
+        <div className="flex gap-4">
+          <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+          <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>
+          <Link to="/cookies" className="hover:text-white transition-colors">Cookies</Link>
+          <Link to="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
         </div>
       </div>
     </footer>

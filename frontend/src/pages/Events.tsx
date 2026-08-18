@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { motion, AnimatePresence } from 'framer-motion'
-import { RiGroupLine, RiRulerLine, RiGridLine, RiArrowRightLine } from 'react-icons/ri'
-import { u, EASE_SOFT } from '../lib/lib'
+import { RiGroupLine, RiRulerLine, RiGridLine } from 'react-icons/ri'
+import { u } from '../lib/lib'
 import Weddings from './Weddings'
 
 const MEETINGS_SPACES = [
@@ -13,7 +12,6 @@ const MEETINGS_SPACES = [
     size: 48,
     layouts: 'Fixed oval · Burma teak',
     image: u('photo-1556761175-b413da4baf72', 1200),
-    span: 'md:col-span-3',
   },
   {
     name: 'The Private Dining',
@@ -22,7 +20,6 @@ const MEETINGS_SPACES = [
     size: 64,
     layouts: 'Single table · Cellar pairing',
     image: u('photo-1414235077428-338989a2e8c0', 1200),
-    span: 'md:col-span-3',
   },
   {
     name: 'Executive Suite',
@@ -31,7 +28,6 @@ const MEETINGS_SPACES = [
     size: 35,
     layouts: 'Lounge · Presentation',
     image: u('photo-1497366216548-37526070297c', 1200),
-    span: 'md:col-span-4 md:row-span-2',
   },
   {
     name: 'The Library',
@@ -40,7 +36,6 @@ const MEETINGS_SPACES = [
     size: 55,
     layouts: 'Fireside · Discussion',
     image: u('photo-1519389950473-47ba0277781c', 1200),
-    span: 'md:col-span-2',
   }
 ]
 
@@ -50,18 +45,16 @@ const EVENTS_SPACES = [
     hotel: 'M2N Delhi Residency',
     capacity: 200,
     size: 340,
-    layouts: 'Theatre · Banquet · Boardroom',
+    layouts: 'Theatre · Banquet',
     image: u('photo-1511578314322-379afb476865', 1400),
-    span: 'md:col-span-4 md:row-span-2',
   },
   {
     name: 'Courtyard Pavilion',
     hotel: 'M2N Jaipur Palace',
     capacity: 120,
     size: 210,
-    layouts: 'Reception · Classrooms under sky',
+    layouts: 'Reception · Sky',
     image: u('photo-1540575467063-178a50c2df87', 1200),
-    span: 'md:col-span-2',
   },
   {
     name: 'Rooftop Deck',
@@ -70,7 +63,6 @@ const EVENTS_SPACES = [
     size: 140,
     layouts: 'Cocktail · Sundowner',
     image: u('photo-1470337458703-46ad1756a187', 1200),
-    span: 'md:col-span-3',
   },
   {
     name: 'Grand Ballroom',
@@ -79,7 +71,6 @@ const EVENTS_SPACES = [
     size: 520,
     layouts: 'Gala · Conference',
     image: u('photo-1505368142750-f8f4c4c8d523', 1400),
-    span: 'md:col-span-3',
   }
 ]
 
@@ -94,22 +85,23 @@ export default function Events() {
         <EventsContent type={activeTab} />
       )}
 
-      <div className="fixed bottom-10 left-1/2 z-[50] flex -translate-x-1/2 items-center rounded-full bg-ink/90 p-1.5 backdrop-blur-md shadow-2xl">
+      {/* COMPACT PILL NAVIGATION */}
+      <div className="fixed bottom-10 left-1/2 z-[50] flex -translate-x-1/2 items-center rounded-full bg-white p-1.5 shadow-xl border border-border">
         <button
           onClick={() => setActiveTab('meetings')}
-          className={`rounded-full px-6 py-2.5 text-[0.85rem] font-medium transition-all duration-300 ${activeTab === 'meetings' ? 'bg-porcelain text-ink' : 'text-porcelain/70 hover:text-porcelain'}`}
+          className={`rounded-full px-6 py-2.5 text-[13px] font-bold transition-all duration-300 ${activeTab === 'meetings' ? 'bg-m2n-ink text-white' : 'text-text-2 hover:text-m2n-ink'}`}
         >
           Meetings
         </button>
         <button
           onClick={() => setActiveTab('events')}
-          className={`rounded-full px-6 py-2.5 text-[0.85rem] font-medium transition-all duration-300 ${activeTab === 'events' ? 'bg-porcelain text-ink' : 'text-porcelain/70 hover:text-porcelain'}`}
+          className={`rounded-full px-6 py-2.5 text-[13px] font-bold transition-all duration-300 ${activeTab === 'events' ? 'bg-m2n-ink text-white' : 'text-text-2 hover:text-m2n-ink'}`}
         >
           Events
         </button>
         <button
           onClick={() => setActiveTab('weddings')}
-          className={`rounded-full px-6 py-2.5 text-[0.85rem] font-medium transition-all duration-300 ${activeTab === 'weddings' ? 'bg-porcelain text-ink' : 'text-porcelain/70 hover:text-porcelain'}`}
+          className={`rounded-full px-6 py-2.5 text-[13px] font-bold transition-all duration-300 ${activeTab === 'weddings' ? 'bg-m2n-ink text-white' : 'text-text-2 hover:text-m2n-ink'}`}
         >
           Weddings
         </button>
@@ -119,108 +111,64 @@ export default function Events() {
 }
 
 function EventsContent({ type }: { type: 'meetings' | 'events' }) {
-  const [hovered, setHovered] = useState<number | null>(null)
-  
   const spaces = type === 'meetings' ? MEETINGS_SPACES : EVENTS_SPACES;
 
   return (
-    <motion.div
-      key={type}
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -15 }}
-      transition={{ duration: 0.6, ease: EASE_SOFT }}
-    >
+    <div key={type} className="pb-32 pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
       <Helmet>
-        <title>{type === 'meetings' ? 'Meetings' : 'Events'} — M2N Group of Hotels</title>
+        <title>{type === 'meetings' ? 'Meetings' : 'Events'} — M2N Group</title>
         <meta name="description" content="Exclusive spaces for your next gathering." />
       </Helmet>
 
-      {/* HERO */}
-      <section className="overflow-hidden pb-24 pt-40 md:pt-48">
-        <div className="editorial-grid">
-          <p className="u-label col-span-12 text-terracotta">Gatherings</p>
-          <h1 className="t-hero col-span-12 mt-6 text-[clamp(3.2rem,12vw,10.5rem)] leading-[0.85] uppercase">
-            {type === 'meetings' ? 'MEETINGS' : 'EVENTS'}
-          </h1>
-          <p className="col-span-12 mt-12 max-w-[540px] text-[0.95rem] font-light leading-[1.85] text-muted md:col-span-5">
-            Every gathering here is house-private: when your {type === 'meetings' ? 'meeting' : 'event'} is in session, the space belongs
-            to no one else. Hover a room to read its temperament.
-          </p>
-        </div>
-      </section>
+      {/* HEADER */}
+      <div className="mb-16 border-b border-border pb-8 text-center">
+        <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">Gatherings</p>
+        <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] text-m2n-ink font-bold leading-tight max-w-2xl mx-auto uppercase">
+          {type === 'meetings' ? 'Meetings' : 'Events'}
+        </h1>
+        <p className="mt-6 text-sm text-text-2 max-w-lg mx-auto leading-relaxed">
+          Every gathering here is house-private: when your {type === 'meetings' ? 'meeting' : 'event'} is in session, the space belongs to no one else.
+        </p>
+      </div>
 
-      {/* ISOMETRIC-STYLE GRID */}
-      <section className="pb-16 md:pb-24">
-        <div className="editorial-grid">
-          <div className="col-span-12 grid grid-cols-1 gap-6 md:grid-cols-6 md:auto-rows-[240px]">
-            {spaces.map((s, i) => (
-              <motion.div
-                key={s.name}
-                className={`group relative overflow-hidden border border-line ${s.span} min-h-[300px]`}
-                onMouseEnter={() => setHovered(i)}
-                onMouseLeave={() => setHovered(null)}
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.5, ease: EASE_SOFT }}
-                data-cursor="view"
-              >
-                <img
-                  src={s.image}
-                  alt={s.name}
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover"
-                  style={{ filter: 'saturate(0.88)' }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 p-7">
-                  <p className="u-label-sm text-porcelain/75">{s.hotel.replace('M2N ', '')}</p>
-                  <h3 className="t-section mt-2 text-[clamp(1.6rem,2.8vw,2.6rem)] text-porcelain">{s.name}</h3>
-                </div>
-
-                {/* Hover overlay */}
-                <AnimatePresence>
-                  {hovered === i && (
-                    <motion.div
-                      className="absolute inset-0 flex flex-col justify-end bg-porcelain/95 p-7"
-                      initial={{ opacity: 0, y: 24 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 24 }}
-                      transition={{ duration: 0.45, ease: EASE_SOFT }}
-                    >
-                      <p className="u-label text-terracotta">{s.name}</p>
-                      <div className="mt-6 flex flex-col gap-4 border-t border-line pt-6">
-                        <p className="flex items-center gap-3 text-sm font-light text-ink">
-                          <RiGroupLine size={16} className="text-terracotta" /> Up to {s.capacity} guests
-                        </p>
-                        <p className="flex items-center gap-3 text-sm font-light text-ink">
-                          <RiRulerLine size={16} className="text-terracotta" /> {s.size} sq.m
-                        </p>
-                        <p className="flex items-center gap-3 text-sm font-light text-ink">
-                          <RiGridLine size={16} className="text-terracotta" /> {s.layouts}
-                        </p>
-                      </div>
-                      <p className="u-label-sm mt-6 text-warm">{s.hotel}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        {spaces.map((s) => (
+          <div key={s.name} className="group flex flex-col bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+            <div className="h-[280px] relative overflow-hidden">
+               <img src={s.image} alt={s.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+               <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded text-[10px] font-bold text-m2n-ink uppercase tracking-wider shadow-sm">
+                 {s.hotel}
+               </div>
+            </div>
+            <div className="p-6 flex flex-col flex-grow">
+               <h3 className="font-display text-2xl text-m2n-ink font-bold mb-4">{s.name}</h3>
+               
+               <div className="grid grid-cols-3 gap-4 border-t border-border pt-4">
+                 <div>
+                   <p className="text-[10px] font-bold text-text-3 uppercase tracking-wider mb-1">Capacity</p>
+                   <p className="text-sm text-m2n-ink font-medium flex items-center gap-1"><RiGroupLine className="text-m2n-saffron"/> {s.capacity}</p>
+                 </div>
+                 <div>
+                   <p className="text-[10px] font-bold text-text-3 uppercase tracking-wider mb-1">Size (sq.m)</p>
+                   <p className="text-sm text-m2n-ink font-medium flex items-center gap-1"><RiRulerLine className="text-m2n-saffron"/> {s.size}</p>
+                 </div>
+                 <div>
+                   <p className="text-[10px] font-bold text-text-3 uppercase tracking-wider mb-1">Layout</p>
+                   <p className="text-sm text-m2n-ink font-medium flex items-center gap-1"><RiGridLine className="text-m2n-saffron"/> {s.layouts.split('·')[0].trim()}</p>
+                 </div>
+               </div>
+            </div>
           </div>
-
-          {/* CTA */}
-          <div className="col-span-12 mt-28 flex flex-col items-start justify-between gap-10 border-t border-line pt-16 md:flex-row md:items-end">
-            <h2 className="t-quote max-w-[560px] text-[clamp(1.8rem,3.4vw,3rem)]">
-              Reception, offsite, or quiet signing — <em className="text-terracotta">we set the room, you keep the moment.</em>
-            </h2>
-            <button
-              onClick={() => window.dispatchEvent(new Event('m2n:reserve'))}
-              className="btn-outline"
-            >
-              Plan {type === 'meetings' ? 'a Meeting' : 'an Event'} <RiArrowRightLine size={15} />
-            </button>
-          </div>
-        </div>
-      </section>
-    </motion.div>
+        ))}
+      </div>
+      
+      {/* OUTRO */}
+      <div className="bg-bg-soft rounded-xl p-10 text-center max-w-3xl mx-auto border border-border">
+         <p className="font-display text-2xl text-m2n-ink font-bold mb-4">
+           Reception, offsite, or quiet signing — <span className="italic text-m2n-saffron font-medium">we set the room, you keep the moment.</span>
+         </p>
+         <button className="btn btn-primary px-6 py-2.5 text-sm mt-4">Plan {type === 'meetings' ? 'a Meeting' : 'an Event'}</button>
+      </div>
+    </div>
   )
 }
