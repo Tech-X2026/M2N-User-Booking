@@ -6,22 +6,26 @@ export interface City {
 }
 
 export const popularCities: City[] = [
-  { id: 'c1', name: 'Abu Dhabi', state: 'Abu Dhabi', isPopular: true },
-  { id: 'c2', name: 'Ahmedabad', state: 'Gujarat', isPopular: true },
-  { id: 'c3', name: 'Bengaluru', state: 'Karnataka', isPopular: true },
-  { id: 'c4', name: 'Chandigarh', state: 'Chandigarh', isPopular: true },
-  { id: 'c5', name: 'Chennai', state: 'Tamil Nadu', isPopular: true },
+  { id: 'p1', name: 'Lucknow', state: 'Uttar Pradesh', isPopular: true },
+  { id: 'p2', name: 'Varanasi', state: 'Uttar Pradesh', isPopular: true },
+  { id: 'p3', name: 'Kanpur', state: 'Uttar Pradesh', isPopular: true },
+  { id: 'p4', name: 'Prayagraj', state: 'Uttar Pradesh', isPopular: true },
+  { id: 'p5', name: 'Agra', state: 'Uttar Pradesh', isPopular: true },
+  { id: 'p6', name: 'Mathura', state: 'Uttar Pradesh', isPopular: true },
   { id: 'c6', name: 'Delhi NCR', state: 'Delhi', isPopular: true },
-  { id: 'c7', name: 'Dubai', state: 'Dubai', isPopular: true },
-  { id: 'c8', name: 'Goa', state: 'Goa', isPopular: true },
-  { id: 'c9', name: 'Hyderabad', state: 'Telangana', isPopular: true },
-  { id: 'c10', name: 'Kolkata', state: 'West Bengal', isPopular: true },
   { id: 'c11', name: 'Mumbai', state: 'Maharashtra', isPopular: true },
-  { id: 'c12', name: 'Pune', state: 'Maharashtra', isPopular: true },
+  { id: 'c8', name: 'Goa', state: 'Goa', isPopular: true },
+  { id: 'c3', name: 'Bengaluru', state: 'Karnataka', isPopular: true },
+  { id: 'c9', name: 'Hyderabad', state: 'Telangana', isPopular: true },
+  { id: 'c5', name: 'Chennai', state: 'Tamil Nadu', isPopular: true },
 ];
 
 export const allCities: City[] = [
   ...popularCities,
+  { id: 'c2', name: 'Ahmedabad', state: 'Gujarat' },
+  { id: 'c4', name: 'Chandigarh', state: 'Chandigarh' },
+  { id: 'c10', name: 'Kolkata', state: 'West Bengal' },
+  { id: 'c12', name: 'Pune', state: 'Maharashtra' },
   { id: 'a1', name: 'Abohar', state: 'Punjab' },
   { id: 'a2', name: 'Abu Road', state: 'Rajasthan' },
   { id: 'a3', name: 'Achampet', state: 'Telangana' },
@@ -40,9 +44,7 @@ export const allCities: City[] = [
   { id: 'h1', name: 'Hubli', state: 'Karnataka' },
   { id: 'i1', name: 'Indore', state: 'Madhya Pradesh' },
   { id: 'j1', name: 'Jaipur', state: 'Rajasthan' },
-  { id: 'k1', name: 'Kanpur', state: 'Uttar Pradesh' },
   { id: 'k2', name: 'Kochi', state: 'Kerala' },
-  { id: 'l1', name: 'Lucknow', state: 'Uttar Pradesh' },
   { id: 'm1', name: 'Madurai', state: 'Tamil Nadu' },
   { id: 'n1', name: 'Nagpur', state: 'Maharashtra' },
   { id: 'n2', name: 'Noida', state: 'Uttar Pradesh' },
@@ -52,6 +54,5 @@ export const allCities: City[] = [
   { id: 't1', name: 'Trivandrum', state: 'Kerala' },
   { id: 'u1', name: 'Udaipur', state: 'Rajasthan' },
   { id: 'v1', name: 'Vadodara', state: 'Gujarat' },
-  { id: 'v2', name: 'Varanasi', state: 'Uttar Pradesh' },
   { id: 'v3', name: 'Visakhapatnam', state: 'Andhra Pradesh' }
 ].sort((a, b) => a.name.localeCompare(b.name));

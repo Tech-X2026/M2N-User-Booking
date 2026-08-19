@@ -4,6 +4,7 @@ import { RiRulerLine, RiGroupLine, RiCheckLine } from 'react-icons/ri'
 import axios from 'axios'
 import { inr, u } from '../lib/lib'
 import BookingWidget from '../components/BookingWidget'
+import { useLocationContext } from '../lib/LocationContext'
 
 const RoomCard = ({ r, allRooms }: { r: any, allRooms: any[] }) => {
   const [showBooking, setShowBooking] = useState(false);
@@ -68,6 +69,7 @@ const RoomCard = ({ r, allRooms }: { r: any, allRooms: any[] }) => {
 export default function Rooms() {
   const [rooms, setRooms] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { selectedCity } = useLocationContext()
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:5000/api'}/public/categories`)
@@ -102,9 +104,27 @@ export default function Rooms() {
       <div>
         {loading ? (
           <div className="py-24 text-center text-text-3 font-medium">Loading rooms...</div>
-        ) : rooms.map((r) => (
-          <RoomCard key={r._id} r={r} allRooms={rooms} />
-        ))}
+        ) : (() => {
+          const filteredRooms = selectedCity
+            ? rooms.filter((r: any) => 
+                r.hotelId?.city?.toLowerCase() === selectedCity.name.toLowerCase() ||
+                r.hotelId?.state?.toLowerCase() === selectedCity.name.toLowerCase()
+              )
+            : rooms;
+
+          if (selectedCity && filteredRooms.length === 0) {
+            return (
+              <div className="py-20 text-center text-text-3 font-medium">
+                <span className="font-bold text-m2n-saffron text-xl block mb-2">Coming Soon</span>
+                No rooms currently available in {selectedCity.name}.
+              </div>
+            );
+          }
+
+          return filteredRooms.map((r) => (
+            <RoomCard key={r._id} r={r} allRooms={rooms} />
+          ));
+        })()}
       </div>
     </div>
   )

@@ -20,10 +20,10 @@ const AllCitiesList: React.FC<AllCitiesListProps> = ({ onSelectLocation }) => {
   return (
     <div className="space-y-6">
       {/* Alphabet Filter */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex overflow-x-auto gap-2 pb-2 custom-scrollbar">
         <button
           onClick={() => setActiveLetter(null)}
-          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+          className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
             activeLetter === null
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-gray-500 hover:bg-gray-100'
@@ -40,7 +40,7 @@ const AllCitiesList: React.FC<AllCitiesListProps> = ({ onSelectLocation }) => {
               key={letter}
               onClick={() => hasCities && setActiveLetter(letter)}
               disabled={!hasCities}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+              className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
                 activeLetter === letter
                   ? 'bg-blue-600 text-white shadow-md'
                   : hasCities

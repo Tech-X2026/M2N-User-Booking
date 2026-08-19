@@ -35,7 +35,7 @@
     text-rendering: optimizeLegibility;
     scrollbar-width: none;
   }
-  ::-webkit-scrollbar { width: 0; height: 0; }
+  :not(.custom-scrollbar)::-webkit-scrollbar { width: 0; height: 0; }
   *, ::before, ::after { border-color: var(--color-border); }
   ::selection { background: var(--color-m2n-saffron); color: #fff; }
   img { user-select: none; -webkit-user-drag: none; }
@@ -261,6 +261,13 @@
   .qchip { padding: 7px 14px; background: #fff; border: 1px solid var(--color-border); border-radius: 20px; font-size: 12px; font-weight: 500; color: var(--color-text-2); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
   .qchip:hover { border-color: var(--color-m2n-saffron); color: var(--color-m2n-saffron); }
   .qchip.active { background: var(--color-m2n-ink); color: #fff; border-color: var(--color-m2n-ink); }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar { scrollbar-width: thin !important; scrollbar-color: var(--color-border) transparent !important; overflow-y: auto !important; }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px !important; height: 6px !important; display: block !important; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent !important; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--color-border) !important; border-radius: 10px !important; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: var(--color-text-3) !important; }
 
   /* Typography extensions */
   .section-title { font-family: var(--font-display); font-size: clamp(22px, 4vw, 28px); font-weight: 700; color: var(--color-m2n-ink); }

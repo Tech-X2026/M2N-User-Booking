@@ -88,7 +88,8 @@ export default function Hotels() {
               if (filtered.length === 0) {
                 return (
                   <div className="py-20 text-center text-text-3 font-medium">
-                    No properties found in {selectedCity.name}.
+                    <span className="font-bold text-m2n-saffron text-xl block mb-2">Coming Soon</span>
+                    No properties currently available in {selectedCity.name}.
                   </div>
                 );
               }

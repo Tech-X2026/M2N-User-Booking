@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomSelect from './CustomSelect';
 import { useAuth } from '../lib/AuthContext';
+import { useLocationContext } from '../lib/LocationContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import api from '../lib/api';
@@ -16,6 +17,7 @@ declare global {
 export default function HeroBookingCard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { selectedCity } = useLocationContext();
   const todayDate = new Date().toISOString().split('T')[0];
 
   const [hotels, setHotels] = useState<any[]>([]);
@@ -159,6 +161,13 @@ export default function HeroBookingCard() {
     }
   };
 
+  const filteredHotels = selectedCity
+    ? hotels.filter(h => 
+        h.city?.toLowerCase() === selectedCity.name.toLowerCase() || 
+        h.state?.toLowerCase() === selectedCity.name.toLowerCase()
+      )
+    : hotels;
+
   return (
     <div className="search-card z-50 w-full max-w-[1280px] mx-auto">
       <div className="search-tabs">
@@ -174,8 +183,9 @@ export default function HeroBookingCard() {
           <CustomSelect
             value={selectedHotel}
             onChange={(val) => setSelectedHotel(val)}
-            options={hotels.map(h => ({ value: h._id, label: h.name }))}
-            placeholder="Select Hotel"
+            options={filteredHotels.map(h => ({ value: h._id, label: h.name }))}
+            placeholder={selectedCity && filteredHotels.length === 0 ? "Coming Soon" : "Select Hotel"}
+            disabled={selectedCity && filteredHotels.length === 0}
           />
         </div>
 
@@ -186,8 +196,14 @@ export default function HeroBookingCard() {
             value={selectedRoom}
             onChange={(val) => { setSelectedRoom(val); setAvailability(null); }}
             options={rooms.map(r => ({ value: r._id, label: r.name }))}
-            placeholder={selectedHotel ? (rooms.length > 0 ? "Select Room" : "Loading...") : "Select Hotel First"}
-            disabled={!selectedHotel || rooms.length === 0}
+            placeholder={
+              selectedCity && filteredHotels.length === 0 
+                ? "Coming Soon" 
+                : selectedHotel 
+                  ? (rooms.length > 0 ? "Select Room" : "Loading...") 
+                  : "Select Hotel First"
+            }
+            disabled={!selectedHotel || rooms.length === 0 || (selectedCity && filteredHotels.length === 0)}
           />
         </div>
 
