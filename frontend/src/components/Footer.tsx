@@ -1,13 +1,6 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-
-const HOTELS = [
-  { label: 'M2N Zaarang Inn · Jaipur', to: '/hotels/1' },
-  { label: 'M2N Aurelia Grand · Jaipur', to: '/hotels/2' },
-  { label: 'M2N Shaurya Inn', to: '/hotels/3' },
-  { label: 'M2N Udaipur · Lake Pavilion', to: '/hotels/4' },
-  { label: 'M2N Shimla · Cedar Lodge', to: '/hotels/5' },
-  { label: 'M2N Delhi · Lutyens', to: '/hotels/6' },
-]
+import axios from 'axios'
 
 const EXPLORE = [
   { label: 'Rooms & Suites', to: '/rooms' },
@@ -17,26 +10,30 @@ const EXPLORE = [
   { label: 'Weddings & Events', to: '/events' },
 ]
 
-const OFFERS = [
-  { label: 'Early-Bird 25% Off', to: '/offers' },
-  { label: 'Loyalty ×2 Points', to: '/offers' },
-  { label: 'Stay Longer Save More', to: '/offers' },
-  { label: 'Corporate & MICE', to: '/offers' },
-  { label: 'Gift Cards', to: '/offers' },
-]
-
 const SUPPORT = [
   { label: 'My Bookings', to: '/my-bookings' },
   { label: 'Modify / Cancel', to: '/contact' },
   { label: 'Contact Concierge', to: '/contact' },
-  { label: '+91 96587 100', to: 'tel:+9196587100' },
-  { label: 'booking@m2nhotels.com', to: 'mailto:booking@m2nhotels.com' },
+  { label: 'Reception: +91 96587 100', to: 'tel:+9196587100' },
+  { label: 'Reservations: +91 96587 100', to: 'tel:+9196587100' },
+  { label: 'Email: m2nhotelsbookinglko@gmail.com', to: 'mailto:m2nhotelsbookinglko@gmail.com' },
 ]
 
 export default function Footer() {
+  const [hotels, setHotels] = useState<any[]>([])
+
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:5000/api'}/public/hotels`)
+      .then(res => {
+        // limit to 6 hotels for the footer
+        setHotels(res.data.slice(0, 6))
+      })
+      .catch(err => console.error('Error fetching hotels for footer:', err))
+  }, [])
+
   return (
     <footer className="bg-m2n-ink text-white pt-[50px] pb-6 px-6">
-      <div className="max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-8 lg:gap-8">
+      <div className="max-w-[1280px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-8">
         
         {/* Brand Column (takes up 2 columns on lg) */}
         <div className="lg:col-span-2">
@@ -52,9 +49,9 @@ export default function Footer() {
         <div>
           <h5 className="text-[13px] font-bold mb-3.5 tracking-[0.5px] text-[#fbbf24] uppercase">Our Hotels</h5>
           <ul className="flex flex-col gap-2.5">
-            {HOTELS.map((item, i) => (
-              <li key={i}>
-                <Link to={item.to} className="text-white/70 hover:text-white text-[12px] transition-colors">{item.label}</Link>
+            {hotels.map(h => (
+              <li key={h._id}>
+                <Link to={`/hotels/${h._id}`} className="text-white/70 hover:text-white text-[12px] transition-colors">{h.name}</Link>
               </li>
             ))}
           </ul>
@@ -72,17 +69,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Offers Column */}
-        <div>
-          <h5 className="text-[13px] font-bold mb-3.5 tracking-[0.5px] text-[#fbbf24] uppercase">Offers</h5>
-          <ul className="flex flex-col gap-2.5">
-            {OFFERS.map((item, i) => (
-              <li key={i}>
-                <Link to={item.to} className="text-white/70 hover:text-white text-[12px] transition-colors">{item.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
 
         {/* Support Column */}
         <div>
@@ -103,7 +89,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-[1280px] mx-auto mt-9 pt-[18px] border-t border-white/10 flex flex-col sm:flex-row justify-between gap-4 text-[11px] text-white/50">
-        <span>© 2026 M2N Group of Hotels · India · All rights reserved</span>
+        <span>Designed, Developed, Maintained, Managed And Marketed By Tech X IT Services</span>
         <div className="flex gap-4">
           <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>
           <Link to="/terms" className="hover:text-white transition-colors">Terms</Link>

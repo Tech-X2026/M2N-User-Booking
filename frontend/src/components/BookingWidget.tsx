@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { inr } from '../lib/lib';
 import OccupancySelector from './OccupancySelector';
+import CustomSelect from './CustomSelect';
 
 declare global {
   interface Window {
@@ -167,14 +168,16 @@ export default function BookingWidget({ hotelId, hotelRooms, preSelectedRoomId, 
       </div>
       
       {!preSelectedRoomId && (
-        <div className="mb-6">
+        <div className="mb-6 relative">
           <label className="u-label-sm text-muted">Room Category</label>
-          <select className="field mt-1 w-full" value={selectedRoom} onChange={e => { setSelectedRoom(e.target.value); setAvailability(null); }}>
-            <option value="">Select a room...</option>
-            {hotelRooms.map(r => (
-              <option key={r._id} value={r._id}>{r.name} - {inr(r.price)}/night</option>
-            ))}
-          </select>
+          <div className="field mt-1 w-full bg-cream/30 px-3">
+            <CustomSelect
+              value={selectedRoom}
+              onChange={(val) => { setSelectedRoom(val); setAvailability(null); }}
+              options={hotelRooms.map(r => ({ value: r._id, label: `${r.name} - ${inr(r.price)}/night` }))}
+              placeholder="Select a room..."
+            />
+          </div>
         </div>
       )}
       

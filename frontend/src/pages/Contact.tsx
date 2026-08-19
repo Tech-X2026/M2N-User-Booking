@@ -54,7 +54,7 @@ export default function Contact() {
           </div>
 
           {/* RIGHT — FORM */}
-          <div className="flex flex-col justify-center px-6 pb-24 pt-32 md:px-14 lg:pt-24 xl:px-24 min-h-screen">
+          <div className="flex flex-col justify-center px-6 pb-12 md:pb-24 pt-24 md:pt-32 md:px-14 lg:pt-24 xl:px-24 min-h-screen">
             <div className="mb-12">
               <p className="text-[11px] font-bold text-m2n-saffron uppercase tracking-widest mb-3">Correspondence</p>
               <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight">

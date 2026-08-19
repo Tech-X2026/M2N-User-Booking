@@ -19,7 +19,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="pb-24">
+    <div className="pb-12 md:pb-24">
       <Helmet>
         <title>M2N Group of Hotels — Where Architecture Breathes</title>
         <meta name="description" content="Five addresses across India — Jaipur, Goa, Delhi, Udaipur, Shimla. Heritage palaces, coastal houses and mountain lodges rendered with editorial restraint." />
@@ -27,11 +27,7 @@ export default function Home() {
 
       {/* COMPACT HERO */}
       <section className="relative h-[65vh] min-h-[500px] bg-m2n-charcoal flex flex-col justify-between pt-[120px] px-6">
-        <div 
-          className="absolute inset-0 opacity-40 bg-cover bg-center" 
-          style={{ backgroundImage: `url(${u('photo-1542314831-c6a4d27ce668', 1920)})` }} 
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-m2n-ink/50 via-transparent to-m2n-charcoal/90" />
+
         
         <div className="relative z-10 max-w-[1280px] mx-auto w-full flex-1 flex flex-col justify-center pb-[100px]">
           <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-4 uppercase drop-shadow-sm">A Return to Restraint</p>
@@ -56,7 +52,7 @@ export default function Home() {
       </div>
 
       {/* TRUST STRIP */}
-      <section className="max-w-[1280px] mx-auto px-6 mt-14 mb-20">
+      <section className="max-w-[1280px] mx-auto px-6 mt-14 mb-10 md:mb-20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 border-y border-border">
           <div className="flex flex-col gap-2">
             <span className="text-xl">🏛️</span>
@@ -82,7 +78,7 @@ export default function Home() {
       </section>
 
       {/* FEATURED PROPERTIES */}
-      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+      <section className="max-w-[1280px] mx-auto px-6 mb-12 md:mb-16 lg:mb-24">
         <div className="flex justify-between items-end mb-8">
           <div>
             <h2 className="section-title">Featured Properties</h2>
@@ -114,7 +110,7 @@ export default function Home() {
                     <span className="text-[11px] font-bold text-m2n-saffron">Explore House ➔</span>
                     <div className="prop-price-block">
                       <div className="per">From</div>
-                      <div className="now">{inr(9500)}</div>
+                      <div className="now">{inr(h.priceFrom || 9500)}</div>
                     </div>
                   </div>
                 </div>
@@ -138,7 +134,7 @@ export default function Home() {
       </section>
 
       {/* TODAY's FLASH DEALS */}
-      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+      <section className="max-w-[1280px] mx-auto px-6 mb-12 md:mb-16 lg:mb-24">
         <h2 className="section-title mb-6">Exclusive Offers</h2>
         <div className="deals-row">
           <Link to="/offers" className="deal-card group">
@@ -180,7 +176,7 @@ export default function Home() {
       </section>
 
       {/* CURATED EXPERIENCES */}
-      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+      <section className="max-w-[1280px] mx-auto px-6 mb-12 md:mb-16 lg:mb-24">
         <div className="flex justify-between items-end mb-8">
           <div>
             <h2 className="section-title">Curated Experiences</h2>
@@ -214,7 +210,7 @@ export default function Home() {
       </section>
 
       {/* LOYALTY PROMO */}
-      <section className="max-w-[1280px] mx-auto px-6 mb-24">
+      <section className="max-w-[1280px] mx-auto px-6 mb-12 md:mb-16 lg:mb-24">
         <div className="bg-m2n-ink rounded-2xl overflow-hidden flex flex-col md:flex-row items-center">
           <div className="p-10 md:p-14 flex-1 text-center md:text-left">
             <h3 className="font-display text-3xl md:text-4xl text-white font-bold mb-4">M2N <span className="text-m2n-saffron italic font-medium">Reserve</span></h3>

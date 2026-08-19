@@ -86,7 +86,7 @@ export default function Gallery() {
       </Helmet>
 
       {/* HEADER */}
-      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+      <div className="pb-16 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
         <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">The Archive</p>
         <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight italic">
           Gallery
@@ -97,7 +97,7 @@ export default function Gallery() {
       </div>
 
       {/* TWO-SPEED COLUMNS */}
-      <section ref={wrapRef} className="pb-24 pt-16 px-6 max-w-[1280px] mx-auto">
+      <section ref={wrapRef} className="pb-12 md:pb-24 pt-16 px-6 max-w-[1280px] mx-auto">
         <div className="grid grid-cols-2 gap-4 md:gap-8">
           <div className="col-span-1">
             {left.map((id, i) => {

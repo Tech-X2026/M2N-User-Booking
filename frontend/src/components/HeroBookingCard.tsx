@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CustomSelect from './CustomSelect';
 import { useAuth } from '../lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -168,34 +169,26 @@ export default function HeroBookingCard() {
 
       <div className="search-grid mt-4">
         {/* Destination */}
-        <div className="sfield focus-within:border-m2n-saffron focus-within:ring-2 focus-within:ring-m2n-saffron/10">
+        <div className="sfield focus-within:border-m2n-saffron focus-within:ring-2 focus-within:ring-m2n-saffron/10 relative">
           <label>DESTINATION</label>
-          <select 
-            className="w-full bg-transparent outline-none text-[13px] font-semibold text-text-1 appearance-none cursor-pointer mt-1"
+          <CustomSelect
             value={selectedHotel}
-            onChange={(e) => setSelectedHotel(e.target.value)}
-          >
-            <option value="">Select Hotel</option>
-            {hotels.map(h => (
-              <option key={h._id} value={h._id}>{h.name}</option>
-            ))}
-          </select>
+            onChange={(val) => setSelectedHotel(val)}
+            options={hotels.map(h => ({ value: h._id, label: h.name }))}
+            placeholder="Select Hotel"
+          />
         </div>
 
         {/* Room Type */}
-        <div className="sfield focus-within:border-m2n-saffron focus-within:ring-2 focus-within:ring-m2n-saffron/10">
+        <div className="sfield focus-within:border-m2n-saffron focus-within:ring-2 focus-within:ring-m2n-saffron/10 relative">
           <label>ROOM TYPE</label>
-          <select 
-            className="w-full bg-transparent outline-none text-[13px] font-semibold text-text-1 appearance-none cursor-pointer mt-1"
+          <CustomSelect
             value={selectedRoom}
-            onChange={(e) => { setSelectedRoom(e.target.value); setAvailability(null); }}
+            onChange={(val) => { setSelectedRoom(val); setAvailability(null); }}
+            options={rooms.map(r => ({ value: r._id, label: r.name }))}
+            placeholder={selectedHotel ? (rooms.length > 0 ? "Select Room" : "Loading...") : "Select Hotel First"}
             disabled={!selectedHotel || rooms.length === 0}
-          >
-            <option value="">{selectedHotel ? (rooms.length > 0 ? "Select Room" : "Loading...") : "Select Hotel First"}</option>
-            {rooms.map(r => (
-              <option key={r._id} value={r._id}>{r.name}</option>
-            ))}
-          </select>
+          />
         </div>
 
         {/* Check In/Out */}
@@ -242,11 +235,6 @@ export default function HeroBookingCard() {
         >
           {loading ? 'Searching...' : 'Check Availability'}
         </button>
-      </div>
-
-      <div className="search-extras">
-        <label><input type="checkbox" /> My Dates are Flexible</label>
-        <label><input type="checkbox" /> Add Airport Transfer</label>
       </div>
 
       {error && <div className="mt-4 p-3 bg-m2n-rose/10 text-m2n-rose text-sm rounded-md font-medium">{error}</div>}

@@ -25,7 +25,7 @@ const TREATMENTS = [
 
 export default function Spa() {
   return (
-    <div className="pb-24 pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
+    <div className="pb-12 md:pb-24 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
       <Helmet>
         <title>Spa & Wellness — M2N Group</title>
         <meta name="description" content="Abhyanga, Shirodhara, Udvartana — Ayurvedic rituals delivered with clinical calm at every M2N spa pavilion." />

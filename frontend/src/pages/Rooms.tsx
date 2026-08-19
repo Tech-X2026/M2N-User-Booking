@@ -82,7 +82,7 @@ export default function Rooms() {
   }, [])
 
   return (
-    <div className="pb-24 pt-32 px-6 max-w-[1000px] mx-auto min-h-screen">
+    <div className="pb-12 md:pb-24 pt-24 md:pt-32 px-6 max-w-[1000px] mx-auto min-h-screen">
       <Helmet>
         <title>Rooms & Suites — M2N Group</title>
       </Helmet>

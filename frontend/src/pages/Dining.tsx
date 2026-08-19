@@ -51,7 +51,7 @@ const RESTAURANTS = [
 
 export default function Dining() {
   return (
-    <div className="pb-24 pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
+    <div className="pb-12 md:pb-24 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
       <Helmet>
         <title>Dining — M2N Group</title>
       </Helmet>

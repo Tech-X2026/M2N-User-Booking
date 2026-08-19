@@ -78,7 +78,7 @@ export default function Careers() {
       </Helmet>
 
       {/* HEADER */}
-      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+      <div className="pb-16 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
         <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">People</p>
         <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight">
           WE ARE <span className="italic font-medium text-m2n-saffron">hiring.</span>

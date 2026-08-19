@@ -80,7 +80,7 @@ export default function About() {
       </Helmet>
 
       {/* HEADER */}
-      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+      <div className="pb-16 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
         <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">The Group</p>
         <h1 className="font-display text-[clamp(2.5rem,5vw,4.5rem)] text-m2n-ink font-bold leading-tight">
           M2N <span className="italic font-medium text-m2n-saffron">Group of Hotels</span>
@@ -88,7 +88,7 @@ export default function About() {
       </div>
 
       {/* STICKY SIDEBAR + SECTIONS */}
-      <div className="max-w-[1280px] mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 pb-24 pt-16">
+      <div className="max-w-[1280px] mx-auto px-6 grid grid-cols-1 md:grid-cols-12 gap-12 pb-12 md:pb-24 pt-16">
         {/* Sidebar */}
         <aside className="hidden md:col-span-3 md:block">
           <div className="sticky top-32">
@@ -120,7 +120,7 @@ export default function About() {
               ref={(el) => {
                 refs.current[i] = el
               }}
-              className="mb-24 pb-24 border-b border-border last:mb-0 last:pb-0 last:border-b-0"
+              className="mb-12 md:mb-16 lg:mb-24 pb-12 md:pb-24 border-b border-border last:mb-0 last:pb-0 last:border-b-0"
             >
               <p className="text-[11px] font-bold text-m2n-saffron uppercase tracking-wider md:hidden mb-4">{s.num} — {s.title}</p>
               <h2 className="font-display text-3xl md:text-4xl text-m2n-ink font-bold leading-tight mb-8">

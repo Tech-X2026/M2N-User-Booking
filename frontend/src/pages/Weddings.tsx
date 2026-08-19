@@ -49,7 +49,7 @@ export default function Weddings() {
   }
 
   return (
-    <div className="pb-24 pt-32 px-6 max-w-[1280px] mx-auto min-h-[85vh]">
+    <div className="pb-12 md:pb-24 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto min-h-[85vh]">
       <Helmet>
         <title>Weddings — M2N Group</title>
         <meta name="description" content="Timeless celebrations across three M2N venues." />
@@ -66,7 +66,7 @@ export default function Weddings() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-24">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 md:mb-16 lg:mb-24">
         {VENUES.map((v) => (
           <div key={v.name} className="group flex flex-col bg-white border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="h-[240px] relative overflow-hidden">

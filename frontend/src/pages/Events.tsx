@@ -114,7 +114,7 @@ function EventsContent({ type }: { type: 'meetings' | 'events' }) {
   const spaces = type === 'meetings' ? MEETINGS_SPACES : EVENTS_SPACES;
 
   return (
-    <div key={type} className="pb-32 pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
+    <div key={type} className="pb-32 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto min-h-screen">
       <Helmet>
         <title>{type === 'meetings' ? 'Meetings' : 'Events'} — M2N Group</title>
         <meta name="description" content="Exclusive spaces for your next gathering." />

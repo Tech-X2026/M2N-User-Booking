@@ -56,7 +56,7 @@ export default function MyBookings() {
 
   return (
     <PageTransition>
-      <div className="pb-32 pt-32 px-6 max-w-[1080px] mx-auto min-h-screen">
+      <div className="pb-32 pt-24 md:pt-32 px-6 max-w-[1080px] mx-auto min-h-screen">
         <div className="mb-16 border-b border-border pb-8">
           <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase">Your Reservations</p>
           <h1 className="font-display text-[clamp(2.5rem,5vw,4rem)] text-m2n-ink font-bold leading-tight">

@@ -236,6 +236,11 @@
   .search-grid { display: grid; grid-template-columns: 1.8fr 1fr 1fr 1.2fr auto; gap: 6px; }
   @media (max-width: 1024px) {
     .search-grid { grid-template-columns: 1fr 1fr; }
+    .search-grid .sbtn { grid-column: span 2; }
+  }
+  @media (max-width: 640px) {
+    .search-grid { grid-template-columns: 1fr; }
+    .search-grid .sbtn { grid-column: span 1; }
   }
   .sfield { padding: 10px 12px; border: 1.5px solid var(--color-border); border-radius: 8px; cursor: pointer; transition: all 0.15s; background: #fff; text-align: left; }
   .sfield:hover, .sfield:focus-within { border-color: var(--color-m2n-saffron); box-shadow: 0 0 0 3px rgba(217,115,22,0.1); }
@@ -243,19 +248,22 @@
   .sfield .value { font-size: 13px; font-weight: 600; color: var(--color-text-1); }
   .sbtn { background: var(--color-m2n-saffron); color: #fff; border: none; padding: 0 28px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
   .sbtn:hover { background: #b85d0c; }
-  .search-extras { display: flex; gap: 16px; margin-top: 10px; padding: 8px 4px 0; font-size: 11px; color: var(--color-text-2); }
+  .search-extras { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; padding: 8px 4px 0; font-size: 11px; color: var(--color-text-2); }
   .search-extras label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
   .search-extras input[type=checkbox] { accent-color: var(--color-m2n-saffron); width: 13px; height: 13px; }
 
   /* Quick Filters */
-  .quick-filters { max-width: 1280px; margin: 60px auto 0; padding: 0 24px; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .quick-filters { max-width: 1280px; margin: 30px auto 0; padding: 0 24px; display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  @media (min-width: 768px) {
+    .quick-filters { margin-top: 60px; }
+  }
   .quick-filters::-webkit-scrollbar { display: none; }
   .qchip { padding: 7px 14px; background: #fff; border: 1px solid var(--color-border); border-radius: 20px; font-size: 12px; font-weight: 500; color: var(--color-text-2); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
   .qchip:hover { border-color: var(--color-m2n-saffron); color: var(--color-m2n-saffron); }
   .qchip.active { background: var(--color-m2n-ink); color: #fff; border-color: var(--color-m2n-ink); }
 
   /* Typography extensions */
-  .section-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--color-m2n-ink); }
+  .section-title { font-family: var(--font-display); font-size: clamp(22px, 4vw, 28px); font-weight: 700; color: var(--color-m2n-ink); }
   .section-sub { font-size: 13px; color: var(--color-text-3); margin-top: 3px; }
   
   /* Vertical Property Cards */

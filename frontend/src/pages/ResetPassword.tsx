@@ -37,7 +37,7 @@ export default function ResetPassword() {
 
   return (
     <PageTransition>
-      <div className="min-h-screen flex items-center justify-center pt-24 pb-24 px-6">
+      <div className="min-h-screen flex items-center justify-center pt-24 pb-12 md:pb-24 px-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-10">
             <p className="text-[11px] font-bold text-m2n-saffron uppercase tracking-widest mb-3">Secure Account</p>

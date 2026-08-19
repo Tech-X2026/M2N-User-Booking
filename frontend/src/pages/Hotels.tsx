@@ -22,7 +22,7 @@ export default function Hotels() {
   }, [])
 
   return (
-    <div className="pb-24 pt-32 px-6 max-w-[1280px] mx-auto min-h-[85vh]">
+    <div className="pb-12 md:pb-24 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto min-h-[85vh]">
       <Helmet>
         <title>Our Hotels — M2N Group</title>
         <meta name="description" content="Five addresses: Jaipur Palace, Goa Coast House, Delhi Residency, Udaipur Lake House, Shimla Ridge Lodge." />

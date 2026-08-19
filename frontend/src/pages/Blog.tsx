@@ -57,7 +57,7 @@ export default function Blog() {
       </Helmet>
 
       {/* HEADER */}
-      <div className="pb-16 pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
+      <div className="pb-16 pt-24 md:pt-32 px-6 max-w-[1280px] mx-auto text-center border-b border-border">
         <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-3 uppercase flex justify-center items-center gap-2">
           <RiBookOpenLine size={16} /> Essays from the Houses
         </p>

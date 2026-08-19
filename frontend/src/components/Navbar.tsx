@@ -6,8 +6,9 @@ import { EASE } from '../lib/lib'
 import { useAuth } from '../lib/AuthContext'
 
 const NAV = [
+  { label: 'Home', to: '/' },
   { label: 'Stays', to: '/hotels' },
-  { label: 'Dining', to: '/dining' },
+  { label: 'Restaurant & Dine-In', to: '/dining' },
   { label: 'Experiences', to: '/experiences' },
   { label: 'Weddings', to: '/events' },
 ]
@@ -16,7 +17,7 @@ const MENU_ALL = [
   { label: 'HOME', to: '/' },
   { label: 'HOTELS', to: '/hotels' },
   { label: 'ROOMS', to: '/rooms' },
-  { label: 'DINING', to: '/dining' },
+  { label: 'RESTAURANT & DINE-IN', to: '/dining' },
   { label: 'EXPERIENCES', to: '/experiences' },
   { label: 'SPA & WELLNESS', to: '/spa' },
   { label: 'MEETINGS & EVENTS', to: '/events' },
@@ -67,7 +68,7 @@ export default function Navbar() {
           {/* NAV PILLS (Desktop) */}
           <nav className="hidden lg:flex gap-1 bg-bg-soft p-1 rounded-xl">
             {NAV.map((n) => {
-              const isActive = location.pathname.startsWith(n.to)
+              const isActive = n.to === '/' ? location.pathname === '/' : location.pathname.startsWith(n.to)
               return (
                 <Link
                   key={n.to}
@@ -86,8 +87,6 @@ export default function Navbar() {
 
           {/* RIGHT ACTIONS */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <button className="icon-btn hidden sm:flex">♡</button>
-            <button className="btn btn-ghost hidden md:block">INR · EN</button>
             
             {user ? (
               <div className="relative">

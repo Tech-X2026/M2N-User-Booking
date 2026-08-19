@@ -92,10 +92,15 @@ export default function HotelDetail() {
   const description = hotel.description || ''
   
   const heroImg = hotel.images?.[0] || u('photo-1542314831-c53cd3816002', 1200)
-  const galleryImgs = hotel.images?.slice(1, 4) || [u('photo-1564501049412-61c2a3083791', 800), u('photo-1511795409834-ef04bbd61622', 800), u('photo-1544161515-4ab6ce6db874', 800)]
+  const fallbackGallery = [u('photo-1564501049412-61c2a3083791', 800), u('photo-1511795409834-ef04bbd61622', 800), u('photo-1544161515-4ab6ce6db874', 800)];
+  const galleryImgs = [
+    hotel.images?.[1] || fallbackGallery[0],
+    hotel.images?.[2] || fallbackGallery[1],
+    hotel.images?.[3] || fallbackGallery[2],
+  ];
 
   return (
-    <div className="pb-24 pt-32 min-h-screen">
+    <div className="pb-12 md:pb-24 pt-24 md:pt-32 min-h-screen">
       <Helmet>
         <title>{hotel.name} — M2N Group</title>
       </Helmet>
@@ -129,7 +134,7 @@ export default function HotelDetail() {
       </div>
 
       {/* GALLERY GRID */}
-      <div className="max-w-[1280px] mx-auto px-6 mb-20">
+      <div className="max-w-[1280px] mx-auto px-6 mb-10 md:mb-20">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-auto md:h-[500px]">
           <div className="md:col-span-2 rounded-xl overflow-hidden h-[300px] md:h-full">
             <img src={heroImg} alt={hotel.name} className="w-full h-full object-cover" />
@@ -146,7 +151,7 @@ export default function HotelDetail() {
       </div>
 
       {/* STORY & AMENITIES */}
-      <div className="max-w-[1280px] mx-auto px-6 mb-24 grid grid-cols-1 lg:grid-cols-12 gap-16">
+      <div className="max-w-[1280px] mx-auto px-6 mb-12 md:mb-16 lg:mb-24 grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div className="lg:col-span-5">
           <h2 className="section-title mb-6">The House Story</h2>
           <div className="text-sm text-text-2 leading-loose whitespace-pre-line">

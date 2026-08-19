@@ -51,78 +51,73 @@ export default function OccupancySelector({ adults, setAdults, childrenCount, se
 
   return (
     <div className="relative w-full" ref={popoverRef}>
-      <label className="u-label-sm text-muted block mb-1">Occupancy</label>
-      <button 
-        type="button"
+      {/* We use a specific label style to match .sfield if not wrapped properly, but it's better to rely on parent. Wait, we can just use the exact same classes as .sfield label. */}
+      <label className="block text-[10px] font-bold text-text-3 mb-[2px] tracking-[0.5px] uppercase">OCCUPANCY</label>
+      
+      <div 
+        className="flex items-center justify-between w-full mt-1 bg-transparent text-[13px] font-semibold text-text-1 outline-none cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
-        className="field w-full h-12 bg-cream/30 text-left flex items-center justify-between px-3 text-ink"
       >
-        <span className="truncate">{adults} adults · {childrenCount} children · {rooms} room{rooms > 1 ? 's' : ''}</span>
-        <FiChevronDown size={18} className="text-muted ml-2 shrink-0" />
-      </button>
+        <span className="truncate pr-2">{adults} adults · {childrenCount} children · {rooms} room{rooms > 1 ? 's' : ''}</span>
+        <FiChevronDown size={14} className={`text-text-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </div>
 
       {isOpen && (
-        <div className="mt-2 w-full bg-white border border-line p-4 sm:p-6 rounded-sm">
+        <div className="absolute top-full left-0 z-50 mt-2 w-full min-w-[220px] bg-white border border-border rounded-md shadow-lg p-3">
           
           {/* Adults */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-ink font-medium">Adults</p>
-            </div>
-            <div className="flex items-center gap-4 border border-line rounded-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[13px] font-semibold text-text-1">Adults</span>
+            <div className="flex items-center gap-3 border border-border rounded-md px-1 py-0.5">
               <button 
                 type="button" 
                 onClick={() => decrement(setAdults, adults, 1)}
-                className="w-10 h-10 flex items-center justify-center text-ink hover:bg-cream/50 transition-colors disabled:opacity-30"
+                className="w-6 h-6 flex items-center justify-center text-text-1 hover:bg-bg-soft rounded transition-colors disabled:opacity-30"
                 disabled={adults <= 1}
               >-</button>
-              <span className="w-4 text-center">{adults}</span>
+              <span className="w-4 text-center text-[13px] font-semibold">{adults}</span>
               <button 
                 type="button" 
                 onClick={() => increment(setAdults, adults, 30)}
-                className="w-10 h-10 flex items-center justify-center text-ink hover:bg-cream/50 transition-colors"
+                className="w-6 h-6 flex items-center justify-center text-text-1 hover:bg-bg-soft rounded transition-colors"
               >+</button>
             </div>
           </div>
 
           {/* Children */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-ink font-medium">Children</p>
-            </div>
-            <div className="flex items-center gap-4 border border-line rounded-sm">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[13px] font-semibold text-text-1">Children</span>
+            <div className="flex items-center gap-3 border border-border rounded-md px-1 py-0.5">
               <button 
                 type="button" 
                 onClick={() => decrement(setChildrenCount, childrenCount, 0)}
-                className="w-10 h-10 flex items-center justify-center text-ink hover:bg-cream/50 transition-colors disabled:opacity-30"
+                className="w-6 h-6 flex items-center justify-center text-text-1 hover:bg-bg-soft rounded transition-colors disabled:opacity-30"
                 disabled={childrenCount <= 0}
               >-</button>
-              <span className="w-4 text-center">{childrenCount}</span>
+              <span className="w-4 text-center text-[13px] font-semibold">{childrenCount}</span>
               <button 
                 type="button" 
                 onClick={() => increment(setChildrenCount, childrenCount, 10)}
-                className="w-10 h-10 flex items-center justify-center text-ink hover:bg-cream/50 transition-colors"
+                className="w-6 h-6 flex items-center justify-center text-text-1 hover:bg-bg-soft rounded transition-colors"
               >+</button>
             </div>
           </div>
 
           {/* Rooms */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <p className="text-ink font-medium">Rooms</p>
-            </div>
-            <div className="flex items-center gap-4 border border-line rounded-sm">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[13px] font-semibold text-text-1">Rooms</span>
+            <div className="flex items-center gap-3 border border-border rounded-md px-1 py-0.5">
               <button 
                 type="button" 
                 onClick={() => decrement(setRooms, rooms, 1)}
-                className="w-10 h-10 flex items-center justify-center text-ink hover:bg-cream/50 transition-colors disabled:opacity-30"
+                className="w-6 h-6 flex items-center justify-center text-text-1 hover:bg-bg-soft rounded transition-colors disabled:opacity-30"
                 disabled={rooms <= 1 || rooms <= Math.ceil(adults / 2)}
               >-</button>
-              <span className="w-4 text-center">{rooms}</span>
+              <span className="w-4 text-center text-[13px] font-semibold">{rooms}</span>
               <button 
                 type="button" 
                 onClick={() => increment(setRooms, rooms, 30)}
-                className="w-10 h-10 flex items-center justify-center text-ink hover:bg-cream/50 transition-colors disabled:opacity-30"
+                className="w-6 h-6 flex items-center justify-center text-text-1 hover:bg-bg-soft rounded transition-colors disabled:opacity-30"
                 disabled={rooms >= adults}
               >+</button>
             </div>
@@ -131,7 +126,7 @@ export default function OccupancySelector({ adults, setAdults, childrenCount, se
           <button 
             type="button" 
             onClick={() => setIsOpen(false)}
-            className="w-full btn-outline justify-center border-terracotta text-terracotta hover:bg-terracotta hover:text-white"
+            className="w-full bg-m2n-ink text-white text-[12px] font-bold py-2 rounded-md hover:bg-[#2a2a2a] transition-colors"
           >
             Done
           </button>

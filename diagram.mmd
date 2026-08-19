@@ -1,0 +1,16 @@
+erDiagram
+    User { String id PK; String name; String email UK; String password "nullable"; String phone "nullable"; String resetPasswordOtp "nullable"; DateTime resetPasswordExpires "nullable"; String twoFactorOtp "nullable"; DateTime twoFactorExpires "nullable"; Boolean isVerified; DateTime createdAt; DateTime updatedAt; }
+    Admin { String id PK; String email UK; String password; String role; String name; String phone "nullable"; Boolean twoFactorEnabled; String twoFactorSecret "nullable"; Boolean twoFactorVerified; DateTime twoFactorSetupCompletedAt "nullable"; String[] twoFactorBackupCodes; String[] permissions; DateTime createdAt; DateTime updatedAt; }
+    Receptionist { String id PK; String hotelId FK "UK"; String name; String email UK; String password; String role; String phone "nullable"; String[] permissions; DateTime createdAt; DateTime updatedAt; }
+    Hotel { String id PK; String name; String city; String state; String type; String tagline; String address; Float lat; Float lng; String description; String[] images; String addedBy FK "nullable"; Boolean isArchived; DateTime createdAt; DateTime updatedAt; }
+    GlobalRoomCategory { String id PK; String name; String[] amenities; Boolean isArchived; DateTime createdAt; DateTime updatedAt; }
+    RoomCategory { String id PK; String hotelId FK; String name; Int numberOfRooms; String roomSize; Int numberOfBeds; Boolean isAC; String view; Int capacity; Float price; String[] features; String[] images; String[] galleryImages; Json rooms; DateTime createdAt; DateTime updatedAt; }
+    Booking { String id PK; String bookingId UK; String userId FK; String hotelId FK; String roomCategoryId FK; DateTime checkIn; String checkInTime; DateTime checkOut; String checkOutTime; Int quantity; Int adults; Int children; Float totalAmount; String status; String razorpayOrderId "nullable"; String razorpayPaymentId "nullable"; String validIdUrl "nullable"; String assignedRoomNumber "nullable"; Boolean cancellationRequested; DateTime createdAt; DateTime updatedAt; }
+
+    Admin ||--o{ Hotel : "adds/manages"
+    Hotel ||--o| Receptionist : "has one (managed by)"
+    Hotel ||--o{ RoomCategory : "contains"
+    Hotel ||--o{ Booking : "has"
+    User ||--o{ Booking : "makes"
+    RoomCategory ||--o{ Booking : "is booked in"
+
