@@ -5,15 +5,45 @@ import { Helmet } from 'react-helmet-async'
 import { RiMapPinLine, RiStarFill } from 'react-icons/ri'
 import HeroBookingCard from '../components/HeroBookingCard'
 import { u, inr } from '../lib/lib'
+import { useLocationContext } from '../lib/LocationContext'
 
 export default function Home() {
   const [dbHotels, setDbHotels] = useState<any[]>([])
+  const { selectedCity } = useLocationContext()
+
+  const renderHotelCard = (h: any) => (
+    <Link to={`/hotels/${h._id}`} key={h._id} className="prop-card group">
+      <div className="prop-img" style={{ backgroundImage: `url(${h.images?.[0] || u('photo-1564501049412-61c2a3083791', 600)})` }}>
+        <span className="prop-tag gold">FEATURED</span>
+        <button className="prop-fav text-text-3 hover:text-m2n-rose transition-colors">♡</button>
+      </div>
+      <div className="prop-body">
+        <div className="prop-top">
+          <h3 className="prop-name truncate pr-2">{h.name}</h3>
+          <div className="prop-rating"><RiStarFill className="text-[#fbbf24] text-[10px]" /><span className="rating-pill">4.9</span></div>
+        </div>
+        <p className="prop-loc"><RiMapPinLine size={12}/> {h.city || 'India'}</p>
+        <div className="prop-amen">
+          <span>Pool</span>
+          <span>Spa</span>
+          <span>Fine Dining</span>
+        </div>
+        <div className="prop-bottom">
+          <span className="text-[11px] font-bold text-m2n-saffron">Explore House ➔</span>
+          <div className="prop-price-block">
+            <div className="per">From</div>
+            <div className="now">{inr(h.priceFrom || 9500)}</div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_ADMIN_API_URL || 'http://localhost:5000/api'}/public/hotels`)
       .then(res => {
         if (res.data && Array.isArray(res.data)) {
-          setDbHotels(res.data.slice(0, 4))
+          setDbHotels(res.data)
         }
       }).catch(err => console.error(err))
   }, [])
@@ -87,48 +117,67 @@ export default function Home() {
           <Link to="/hotels" className="btn btn-ghost hidden sm:block">View All</Link>
         </div>
 
-        <div className="props-grid">
-          {dbHotels.length > 0 ? (
-            dbHotels.map(h => (
-              <Link to={`/hotels/${h._id}`} key={h._id} className="prop-card group">
-                <div className="prop-img" style={{ backgroundImage: `url(${h.images?.[0] || u('photo-1564501049412-61c2a3083791', 600)})` }}>
-                  <span className="prop-tag gold">FEATURED</span>
-                  <button className="prop-fav text-text-3 hover:text-m2n-rose transition-colors">♡</button>
+        <div>
+          {(() => {
+            if (selectedCity) {
+              const filtered = dbHotels.filter(h => 
+                h.city?.toLowerCase() === selectedCity.name.toLowerCase() || 
+                h.state?.toLowerCase() === selectedCity.name.toLowerCase()
+              );
+              
+              if (filtered.length === 0) {
+                return (
+                  <div className="py-10 text-center text-text-3 font-medium">
+                    No properties found in {selectedCity.name}.
+                  </div>
+                );
+              }
+              
+              return (
+                <div>
+                  <h3 className="text-xl font-display font-bold text-m2n-ink mb-4 pb-2 border-b border-border">Properties in {selectedCity.name}</h3>
+                  <div className="props-grid">
+                    {filtered.map(h => renderHotelCard(h))}
+                  </div>
                 </div>
-                <div className="prop-body">
-                  <div className="prop-top">
-                    <h3 className="prop-name truncate pr-2">{h.name}</h3>
-                    <div className="prop-rating"><RiStarFill className="text-[#fbbf24] text-[10px]" /><span className="rating-pill">4.9</span></div>
-                  </div>
-                  <p className="prop-loc"><RiMapPinLine size={12}/> {h.city || 'India'}</p>
-                  <div className="prop-amen">
-                    <span>Pool</span>
-                    <span>Spa</span>
-                    <span>Fine Dining</span>
-                  </div>
-                  <div className="prop-bottom">
-                    <span className="text-[11px] font-bold text-m2n-saffron">Explore House ➔</span>
-                    <div className="prop-price-block">
-                      <div className="per">From</div>
-                      <div className="now">{inr(h.priceFrom || 9500)}</div>
+              );
+            } else {
+              // Group by city
+              const grouped = dbHotels.reduce((acc: any, h: any) => {
+                const c = h.city || 'Other Destinations';
+                if (!acc[c]) acc[c] = [];
+                acc[c].push(h);
+                return acc;
+              }, {});
+              
+              return (
+                <div className="flex flex-col gap-12">
+                  {Object.keys(grouped).map(city => (
+                    <div key={city}>
+                      <h3 className="text-xl font-display font-bold text-m2n-ink mb-4 pb-2 border-b border-border">Hotels in {city}</h3>
+                      <div className="props-grid">
+                        {grouped[city].map((h: any) => renderHotelCard(h))}
+                      </div>
                     </div>
-                  </div>
+                  ))}
+                  {dbHotels.length === 0 && (
+                    <div className="props-grid">
+                      {[1,2,3,4].map(i => (
+                        <div key={i} className="prop-card border-border">
+                          <div className="prop-img bg-border animate-pulse"></div>
+                          <div className="prop-body">
+                            <div className="h-4 bg-border rounded w-3/4 mb-3 animate-pulse"></div>
+                            <div className="h-3 bg-border rounded w-1/2 mb-4 animate-pulse"></div>
+                            <div className="h-10 bg-border rounded w-full animate-pulse"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </Link>
-            ))
-          ) : (
-            // Fallback static cards if DB is empty
-            [1,2,3,4].map(i => (
-              <div key={i} className="prop-card border-border">
-                <div className="prop-img bg-border animate-pulse"></div>
-                <div className="prop-body">
-                  <div className="h-4 bg-border rounded w-3/4 mb-3 animate-pulse"></div>
-                  <div className="h-3 bg-border rounded w-1/2 mb-4 animate-pulse"></div>
-                  <div className="h-10 bg-border rounded w-full animate-pulse"></div>
-                </div>
-              </div>
-            ))
-          )}
+              );
+            }
+          })()}
         </div>
         <Link to="/hotels" className="btn btn-ghost block sm:hidden w-full mt-6 text-center">View All Properties</Link>
       </section>

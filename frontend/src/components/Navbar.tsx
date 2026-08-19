@@ -5,8 +5,8 @@ import { RiCloseLine, RiMenuLine, RiUserLine } from 'react-icons/ri'
 import { MdOutlineLocationOn } from 'react-icons/md'
 import { EASE } from '../lib/lib'
 import { useAuth } from '../lib/AuthContext'
+import { useLocationContext } from '../lib/LocationContext'
 import LocationSelectionModal from './LocationModal/LocationSelectionModal'
-import { City } from '../data/locationsData'
 
 const NAV = [
   { label: 'Home', to: '/' },
@@ -38,7 +38,7 @@ export default function Navbar() {
   const location = useLocation()
   const { user, logout } = useAuth()
   const [locationModalOpen, setLocationModalOpen] = useState(false)
-  const [selectedCity, setSelectedCity] = useState<City | null>(null)
+  const { selectedCity, setSelectedCity } = useLocationContext()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -94,15 +94,26 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3">
             
             {/* Location Selector */}
-            <button
-              onClick={() => setLocationModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 h-9 text-sm font-medium border border-border bg-white rounded-full transition-colors hover:border-m2n-saffron hover:text-m2n-saffron"
-            >
-              <MdOutlineLocationOn size={16} />
-              <span className="hidden sm:inline">
-                {selectedCity ? selectedCity.name : 'Select Location'}
-              </span>
-            </button>
+            <div className="flex items-center border border-border bg-white rounded-full h-9 transition-colors hover:border-m2n-saffron focus-within:border-m2n-saffron">
+              <button
+                onClick={() => setLocationModalOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 h-full text-sm font-medium hover:text-m2n-saffron rounded-l-full"
+              >
+                <MdOutlineLocationOn size={16} />
+                <span className="hidden sm:inline">
+                  {selectedCity ? selectedCity.name : 'Select Location'}
+                </span>
+              </button>
+              {selectedCity && (
+                <button
+                  onClick={() => setSelectedCity(null)}
+                  className="flex items-center justify-center pr-3 py-1.5 h-full text-text-3 hover:text-m2n-rose transition-colors"
+                  aria-label="Clear location"
+                >
+                  <RiCloseLine size={14} />
+                </button>
+              )}
+            </div>
             
             {user ? (
               <div className="relative">

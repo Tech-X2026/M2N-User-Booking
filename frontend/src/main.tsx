@@ -8,6 +8,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import App from './App'
 import { setLenis } from './lib/lib'
 import { AuthProvider } from './lib/AuthContext'
+import { LocationProvider } from './lib/LocationContext'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import './index.css'
 
@@ -31,7 +32,9 @@ createRoot(document.getElementById('root')!).render(
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
       <BrowserRouter>
         <AuthProvider>
-          <App />
+          <LocationProvider>
+            <App />
+          </LocationProvider>
         </AuthProvider>
       </BrowserRouter>
     </GoogleOAuthProvider>
