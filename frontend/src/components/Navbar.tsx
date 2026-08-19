@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RiCloseLine, RiMenuLine, RiUserLine } from 'react-icons/ri'
+import { MdOutlineLocationOn } from 'react-icons/md'
 import { EASE } from '../lib/lib'
 import { useAuth } from '../lib/AuthContext'
+import LocationSelectionModal from './LocationModal/LocationSelectionModal'
+import { City } from '../data/locationsData'
 
 const NAV = [
   { label: 'Home', to: '/' },
@@ -34,6 +37,8 @@ export default function Navbar() {
   const [profileOpen, setProfileOpen] = useState(false)
   const location = useLocation()
   const { user, logout } = useAuth()
+  const [locationModalOpen, setLocationModalOpen] = useState(false)
+  const [selectedCity, setSelectedCity] = useState<City | null>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -87,6 +92,17 @@ export default function Navbar() {
 
           {/* RIGHT ACTIONS */}
           <div className="flex items-center gap-2 sm:gap-3">
+            
+            {/* Location Selector */}
+            <button
+              onClick={() => setLocationModalOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 h-9 text-sm font-medium border border-border bg-white rounded-full transition-colors hover:border-m2n-saffron hover:text-m2n-saffron"
+            >
+              <MdOutlineLocationOn size={16} />
+              <span className="hidden sm:inline">
+                {selectedCity ? selectedCity.name : 'Select Location'}
+              </span>
+            </button>
             
             {user ? (
               <div className="relative">
@@ -189,6 +205,12 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <LocationSelectionModal
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        onSelectLocation={(city) => setSelectedCity(city)}
+      />
     </>
   )
 }
