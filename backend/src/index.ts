@@ -8,7 +8,7 @@ import { xss } from 'express-xss-sanitizer';
 import authRoutes from './routes/authRoutes';
 import bookingRoutes from './routes/bookingRoutes';
 
-dotenv.config({ override: true });
+dotenv.config();
 
 const app = express();
 
@@ -46,7 +46,7 @@ app.use('*', (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, () => {
+app.listen(PORT as number, '0.0.0.0', () => {
   console.log(`Main Backend Server running on port ${PORT}`);
 });
 
