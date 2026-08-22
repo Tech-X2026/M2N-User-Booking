@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
-    "build": "tsc"
+    "build": "npx prisma generate && tsc"
   },
   "keywords": [],
   "author": "",
@@ -30,9 +30,7 @@
     "nodemailer": "^9.0.5",
     "otplib": "^13.4.1",
     "pg": "^8.23.0",
-    "qrcode": "^1.5.4"
-  },
-  "devDependencies": {
+    "qrcode": "^1.5.4",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^4.17.25",

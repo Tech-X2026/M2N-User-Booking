@@ -13,7 +13,7 @@ import globalCategoryRoutes from './routes/globalCategoryRoutes';
 import bookingRoutes from './routes/bookingRoutes';
 import receptionistRoutes from './routes/receptionistRoutes';
 
-dotenv.config({ override: true });
+dotenv.config();
 
 const app = express();
 
@@ -53,9 +53,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = (process.env.PORT && process.env.PORT.trim() !== '') ? process.env.PORT : 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT as any, '0.0.0.0', () => {
   console.log(`Reception Backend Server running on port ${PORT}`);
 });
 
