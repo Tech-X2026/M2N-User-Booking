@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const path_1 = __importDefault(require("path"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
@@ -33,11 +32,13 @@ app.use('/api', limiter);
 // Routes
 app.use('/api/auth', authRoutes_1.default);
 app.use('/api/bookings', bookingRoutes_1.default);
-// Serve static files from the 'dist' folder (which will contain frontend build)
-app.use(express_1.default.static(path_1.default.join(__dirname, '../dist')));
-// Catch-all route to serve index.html for client-side routing
-app.get('*', (req, res) => {
-    res.sendFile(path_1.default.join(__dirname, '../dist/index.html'));
+// API Health Check route
+app.get('/', (req, res) => {
+    res.json({ message: 'M2N Backend API is running successfully!' });
+});
+// Catch-all for undefined API routes
+app.use('*', (req, res) => {
+    res.status(404).json({ message: 'Route not found' });
 });
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

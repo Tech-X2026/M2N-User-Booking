@@ -34,14 +34,12 @@ app.use('/api', limiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/bookings', bookingRoutes);
 
-// API Health Check route
-app.get('/', (req, res) => {
-  res.json({ message: 'M2N Backend API is running successfully!' });
-});
+// Serve static frontend files from 'dist' folder
+app.use(express.static(path.join(__dirname, '../dist')));
 
-// Catch-all for undefined API routes
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+// Catch-all route to serve index.html for client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
