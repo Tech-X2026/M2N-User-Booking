@@ -60,8 +60,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 
-// Make sure to handle if PORT is an empty string
-const PORT = (process.env.PORT && process.env.PORT.trim() !== '') ? process.env.PORT : 5000;
+const PORT = (process.env.PORT && process.env.PORT.trim() !== '') ? process.env.PORT : 3000;
 
 app.listen(PORT as any, '0.0.0.0', () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
