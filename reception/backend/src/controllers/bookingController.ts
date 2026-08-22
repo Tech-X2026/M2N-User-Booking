@@ -145,7 +145,7 @@ export const checkInBooking = async (req: AuthRequest, res: Response): Promise<v
     res.json({ message: 'Checked in successfully', booking: { ...updatedBooking, _id: updatedBooking.id } });
   } catch (error) {
     console.error('Check in error:', error);
-    res.status(500).json({ message: 'Internal server error: ' + (error as any).message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : (error as any).message });
   }
 };
 
@@ -478,6 +478,6 @@ export const createWalkinBooking = async (req: AuthRequest, res: Response): Prom
     res.json({ message: 'Walk-in booking created successfully', booking: { ...booking, _id: booking.id } });
   } catch (error) {
     console.error('Create walkin booking error:', error);
-    res.status(500).json({ message: 'Internal server error: ' + (error as any).message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : (error as any).message });
   }
 };

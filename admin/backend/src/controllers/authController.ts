@@ -63,7 +63,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.status(401).json({ message: 'Invalid email or password' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -98,7 +98,7 @@ export const setup2FA = async (req: Request, res: Response): Promise<void> => {
 
     res.json({ qrCode: qrCodeUrl });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -151,7 +151,7 @@ export const verifySetup2FA = async (req: Request, res: Response): Promise<void>
       backupCodes // Return only once in plain text
     });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -179,7 +179,7 @@ export const verifyLogin2FA = async (req: Request, res: Response): Promise<void>
       token: generateToken(admin.id, admin.role),
     });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -217,6 +217,6 @@ export const verifyBackupCode = async (req: Request, res: Response): Promise<voi
       token: generateToken(admin.id, admin.role),
     });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };

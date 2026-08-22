@@ -26,7 +26,7 @@ export const createGlobalCategory = async (req: Request, res: Response): Promise
 
     res.status(201).json({ ...newCategory, _id: newCategory.id });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -47,7 +47,7 @@ export const getGlobalCategories = async (req: Request, res: Response): Promise<
     
     res.json(formattedCategories);
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -90,7 +90,7 @@ export const updateGlobalCategory = async (req: Request, res: Response): Promise
     
     res.json({ ...updatedCategory, _id: updatedCategory.id });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -114,7 +114,7 @@ export const archiveGlobalCategory = async (req: Request, res: Response): Promis
     
     res.json({ message: 'Category archived' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -138,6 +138,6 @@ export const restoreGlobalCategory = async (req: Request, res: Response): Promis
     
     res.json({ message: 'Category restored' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };

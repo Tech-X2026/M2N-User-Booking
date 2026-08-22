@@ -34,7 +34,7 @@ router.get('/hotels', async (req: Request, res: Response): Promise<void> => {
 
     res.json(formattedHotels);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 });
 
@@ -51,7 +51,7 @@ router.get('/hotels/:id', async (req: Request, res: Response): Promise<void> => 
     }
     res.json({ ...hotel, _id: hotel.id, coords: { lat: hotel.lat, lng: hotel.lng } });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 });
 
@@ -68,7 +68,7 @@ router.get('/hotels/:id/categories', async (req: Request, res: Response): Promis
     }));
     res.json(formattedCategories);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 });
 
@@ -93,7 +93,7 @@ router.get('/categories', async (req: Request, res: Response): Promise<void> => 
 
     res.json(activeCategories);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 });
 

@@ -34,7 +34,7 @@ export const createHotel = async (req: Request, res: Response): Promise<void> =>
 
     res.status(201).json({ ...newHotel, _id: newHotel.id });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -70,7 +70,7 @@ export const getHotels = async (req: Request, res: Response): Promise<void> => {
     
     res.json(formattedHotels);
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -114,7 +114,7 @@ export const updateHotel = async (req: Request, res: Response): Promise<void> =>
     
     res.json({ ...updatedHotel, _id: updatedHotel.id, coords: { lat: updatedHotel.lat, lng: updatedHotel.lng } });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -162,7 +162,7 @@ export const deleteHotel = async (req: AuthRequest, res: Response): Promise<void
 
     res.json({ message: 'Approval email sent for deletion.' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -210,7 +210,7 @@ export const restoreHotel = async (req: AuthRequest, res: Response): Promise<voi
 
     res.json({ message: 'Approval email sent for restoration.' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 

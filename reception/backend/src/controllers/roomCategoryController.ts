@@ -71,7 +71,7 @@ export const createRoomCategory = async (req: AuthRequest, res: Response): Promi
 
     res.status(201).json({ ...newCategory, _id: newCategory.id });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -117,7 +117,7 @@ export const getRoomCategoriesByHotel = async (req: AuthRequest, res: Response):
 
     res.json(formattedCategories);
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -184,7 +184,7 @@ export const updateRoomCategory = async (req: AuthRequest, res: Response): Promi
     
     res.json({ ...updatedCategory, _id: updatedCategory.id });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -212,7 +212,7 @@ export const deleteRoomCategory = async (req: AuthRequest, res: Response): Promi
     await prisma.roomCategory.delete({ where: { id: categoryId } });
     res.json({ message: 'Category removed' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -264,6 +264,6 @@ export const updateRoomStatus = async (req: AuthRequest, res: Response): Promise
 
     res.json(formattedCategory);
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };

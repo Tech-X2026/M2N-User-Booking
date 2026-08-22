@@ -65,13 +65,7 @@ export default function Hotels() {
         </h1>
       </div>
 
-      {/* FILTERS */}
-      <div className="quick-filters mb-10">
-        <button className="qchip active">All Destinations</button>
-        <button className="qchip">Heritage Palaces</button>
-        <button className="qchip">Mountain Lodges</button>
-        <button className="qchip">City Hotels</button>
-      </div>
+
 
       {/* HOTELS GRID */}
       {loading ? (

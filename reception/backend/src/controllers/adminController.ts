@@ -28,7 +28,7 @@ export const getAdmins = async (req: Request, res: Response): Promise<void> => {
     }));
     res.json(formattedAdmins);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -68,7 +68,7 @@ export const createAdmin = async (req: Request, res: Response): Promise<void> =>
       permissions: admin.permissions,
     });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -110,7 +110,7 @@ export const updateAdmin = async (req: Request, res: Response): Promise<void> =>
       res.status(404).json({ message: 'Admin not found' });
     }
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -129,7 +129,7 @@ export const deleteAdmin = async (req: Request, res: Response): Promise<void> =>
       res.status(404).json({ message: 'Admin not found' });
     }
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -157,6 +157,6 @@ export const resetAdmin2FA = async (req: Request, res: Response): Promise<void> 
       res.status(404).json({ message: 'Admin not found' });
     }
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };

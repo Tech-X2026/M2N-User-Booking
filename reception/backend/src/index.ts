@@ -21,7 +21,12 @@ const app = express();
 app.use(helmet({
   crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }
 }));
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? (process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : false)
+    : '*',
+  credentials: true
+}));
 app.use(express.json());
 app.use(xss());
 

@@ -49,7 +49,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     res.status(401).json({ message: 'Invalid email or password' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 

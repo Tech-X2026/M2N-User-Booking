@@ -57,7 +57,7 @@ export const createRoomCategory = async (req: Request, res: Response): Promise<v
 
     res.status(201).json({ ...newCategory, _id: newCategory.id });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -76,7 +76,7 @@ export const getRoomCategoriesByHotel = async (req: Request, res: Response): Pro
     
     res.json(formattedCategories);
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -135,7 +135,7 @@ export const updateRoomCategory = async (req: Request, res: Response): Promise<v
     
     res.json({ ...updatedCategory, _id: updatedCategory.id });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };
 
@@ -155,6 +155,6 @@ export const deleteRoomCategory = async (req: Request, res: Response): Promise<v
     await prisma.roomCategory.delete({ where: { id: categoryId } });
     res.json({ message: 'Category removed' });
   } catch (error: any) {
-    res.status(500).json({ message: error.message || 'Server Error' });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message || 'Server Error' });
   }
 };

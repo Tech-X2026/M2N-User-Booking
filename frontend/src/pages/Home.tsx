@@ -56,30 +56,25 @@ export default function Home() {
       </Helmet>
 
       {/* COMPACT HERO */}
-      <section className="relative h-[65vh] min-h-[500px] bg-m2n-charcoal flex flex-col justify-between pt-[120px] px-6">
+      <section className="relative h-[65vh] min-h-[500px] bg-m2n-charcoal flex flex-col justify-between pt-[120px] px-6 overflow-hidden">
+        <img 
+          src="/images/zaarang-hero.png" 
+          alt="Zaarang Hotel" 
+          className="absolute inset-0 w-full h-full object-cover" 
+        />
+        <div className="absolute inset-0 bg-black/20"></div>
 
         
         <div className="relative z-10 max-w-[1280px] mx-auto w-full flex-1 flex flex-col justify-center pb-[100px]">
-          <p className="text-m2n-saffron font-bold tracking-[2px] text-[11px] mb-4 uppercase drop-shadow-sm">A Return to Restraint</p>
-          <h1 className="font-display text-[clamp(2.5rem,6vw,4.5rem)] text-white font-bold leading-[1.05] max-w-[700px] drop-shadow-md">
-            Luxury defined by <br/><span className="text-[#fbbf24] italic font-medium">proportion</span> & light.
-          </h1>
         </div>
       </section>
 
       {/* SEARCH WIDGET (overlapping hero) */}
-      <div className="relative z-20 px-6 -mt-[48px]">
+      <div className="relative z-20 px-6 -mt-[110px]">
         <HeroBookingCard />
       </div>
 
-      {/* QUICK FILTERS */}
-      <div className="quick-filters">
-        <button className="qchip active">All Destinations</button>
-        <button className="qchip">Heritage Palaces</button>
-        <button className="qchip">Mountain Lodges</button>
-        <button className="qchip">City Hotels</button>
-        <button className="qchip">Beach Retreats</button>
-      </div>
+
 
       {/* TRUST STRIP */}
       <section className="max-w-[1280px] mx-auto px-6 mt-14 mb-10 md:mb-20">

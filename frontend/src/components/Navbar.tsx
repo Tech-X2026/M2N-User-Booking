@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { RiCloseLine, RiMenuLine, RiUserLine } from 'react-icons/ri'
+import { RiCloseLine, RiMenuLine, RiUserLine, RiHome4Line, RiBuilding4Line, RiRestaurantLine, RiCompass3Line, RiHeartLine } from 'react-icons/ri'
 import { MdOutlineLocationOn } from 'react-icons/md'
 import { EASE } from '../lib/lib'
 import { useAuth } from '../lib/AuthContext'
@@ -9,11 +9,11 @@ import { useLocationContext } from '../lib/LocationContext'
 import LocationSelectionModal from './LocationModal/LocationSelectionModal'
 
 const NAV = [
-  { label: 'Home', to: '/' },
-  { label: 'Stays', to: '/hotels' },
-  { label: 'Restaurant & Dine-In', to: '/dining' },
-  { label: 'Experiences', to: '/experiences' },
-  { label: 'Weddings', to: '/events' },
+  { label: 'Home', to: '/', icon: RiHome4Line },
+  { label: 'Stays', to: '/hotels', icon: RiBuilding4Line },
+  { label: 'Restaurant & Dine-In', to: '/dining', icon: RiRestaurantLine },
+  { label: 'Experiences', to: '/experiences', icon: RiCompass3Line },
+  { label: 'Weddings', to: '/events', icon: RiHeartLine },
 ]
 
 const MENU_ALL = [
@@ -71,19 +71,20 @@ export default function Navbar() {
           </Link>
 
           {/* NAV PILLS (Desktop) */}
-          <nav className="hidden lg:flex gap-1 bg-bg-soft p-1 rounded-xl">
+          <nav className={`hidden lg:flex gap-1 bg-bg-soft p-1 rounded-xl transition-all duration-300 ${location.pathname === '/' && !scrolled ? 'opacity-0 pointer-events-none -translate-y-2' : 'opacity-100 translate-y-0'}`}>
             {NAV.map((n) => {
               const isActive = n.to === '/' ? location.pathname === '/' : location.pathname.startsWith(n.to)
               return (
                 <Link
                   key={n.to}
                   to={n.to}
-                  className={`px-3.5 py-2 text-xs font-medium rounded-[7px] transition-all ${
+                  className={`flex items-center gap-1.5 px-3.5 py-2 text-xs font-medium rounded-[7px] transition-all ${
                     isActive 
                       ? 'bg-white text-m2n-ink shadow-[0_1px_3px_rgba(0,0,0,0.08)]' 
                       : 'text-text-2 hover:bg-white/50'
                   }`}
                 >
+                  <n.icon size={15} className={isActive ? 'text-m2n-saffron' : 'opacity-70'} />
                   {n.label}
                 </Link>
               )
@@ -93,27 +94,7 @@ export default function Navbar() {
           {/* RIGHT ACTIONS */}
           <div className="flex items-center gap-2 sm:gap-3">
             
-            {/* Location Selector */}
-            <div className="flex items-center border border-border bg-white rounded-full h-9 transition-colors hover:border-m2n-saffron focus-within:border-m2n-saffron">
-              <button
-                onClick={() => setLocationModalOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 h-full text-sm font-medium hover:text-m2n-saffron rounded-l-full"
-              >
-                <MdOutlineLocationOn size={16} />
-                <span className="hidden sm:inline">
-                  {selectedCity ? selectedCity.name : 'Select Location'}
-                </span>
-              </button>
-              {selectedCity && (
-                <button
-                  onClick={() => setSelectedCity(null)}
-                  className="flex items-center justify-center pr-3 py-1.5 h-full text-text-3 hover:text-m2n-rose transition-colors"
-                  aria-label="Clear location"
-                >
-                  <RiCloseLine size={14} />
-                </button>
-              )}
-            </div>
+            {/* Location Selector removed as per user request to move it to HeroCard */}
             
             {user ? (
               <div className="relative">

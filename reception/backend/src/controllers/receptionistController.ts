@@ -21,7 +21,7 @@ export const getReceptionists = async (req: Request, res: Response) => {
 
     res.json(formattedReceptionists);
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -67,7 +67,7 @@ export const createReceptionist = async (req: Request, res: Response): Promise<v
       permissions: receptionist.permissions,
     });
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -119,7 +119,7 @@ export const updateReceptionist = async (req: Request, res: Response): Promise<v
       res.status(404).json({ message: 'Receptionist not found' });
     }
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
 
@@ -138,6 +138,6 @@ export const deleteReceptionist = async (req: Request, res: Response): Promise<v
       res.status(404).json({ message: 'Receptionist not found' });
     }
   } catch (error: any) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : error.message });
   }
 };
