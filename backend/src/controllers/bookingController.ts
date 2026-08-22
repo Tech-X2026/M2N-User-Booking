@@ -225,7 +225,7 @@ export const verifyPayment = async (req: AuthRequest, res: Response) => {
     }
   } catch (error) {
     console.error('Verify payment error:', error);
-    res.status(500).json({ message: 'Internal server error: ' + (error as Error).message });
+    res.status(500).json({ message: process.env.NODE_ENV === 'production' ? 'Internal server error' : (error as Error).message });
   }
 };
 
