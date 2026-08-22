@@ -12,9 +12,7 @@ import publicRoutes from './routes/publicRoutes';
 import globalCategoryRoutes from './routes/globalCategoryRoutes';
 import bookingRoutes from './routes/bookingRoutes';
 import receptionistRoutes from './routes/receptionistRoutes';
-
-dotenv.config({ override: true });
-
+dotenv.config();
 const app = express();
 
 // Security Middlewares
@@ -62,8 +60,9 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 
-const PORT = process.env.PORT || 5000;
+// Make sure to handle if PORT is an empty string
+const PORT = (process.env.PORT && process.env.PORT.trim() !== '') ? process.env.PORT : 5000;
 
-app.listen(PORT as number, '0.0.0.0', () => {
+app.listen(PORT as any, '0.0.0.0', () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
 });
