@@ -38,7 +38,7 @@ export const register = async (req: Request, res: Response) => {
     });
 
     await sendEmail({
-      to: user.email,
+      to: user.email as string,
       subject: 'Welcome! Your Registration OTP',
       text: `Your One-Time Password for registration is: ${otp}. It will expire in 10 minutes.`,
       html: generateOTPEmailHtml(
@@ -166,7 +166,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     });
 
     await sendEmail({
-      to: user.email,
+      to: user.email as string,
       subject: 'Password Reset OTP',
       text: `Your OTP to reset your password is: ${otp}. It will expire in 15 minutes.`,
       html: generateOTPEmailHtml(
