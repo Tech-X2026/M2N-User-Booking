@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "postinstall": "npm install --prefix backend",
+    "build": "npm run build --prefix backend",
+    "start": "npm start --prefix backend"
+  },
   "devDependencies": {
     "prisma": "^6.4.1"
   },
